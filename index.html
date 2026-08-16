@@ -342,7 +342,7 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
       <button class="snb" data-page="monthly" onclick="nav('monthly')"><span class="ni">📅</span>மாத பதிவு<span class="fs10 tgray" style="margin-left:4px">ஒவ்வொன்றாக</span></button>
       <button class="snb" data-page="bulk" onclick="nav('bulk')"><span class="ni">⚡</span>மொத்த பதிவு<span class="fs10 tgray" style="margin-left:4px">அனைத்தும்</span></button>
       <div class="sb-sec">தகவல்</div>
-      <button class="snb" data-page="ledger" onclick="nav('ledger')"><span class="ni">📒</span>பதிவேடு</button>
+      <button class="snb" data-page="ledger" onclick="nav('ledger')"><span class="ni">📒</span>பதிவேடு (Ledger)</button>
       <button class="snb" data-page="receipt" onclick="nav('receipt')"><span class="ni">🧾</span>ரசீது</button>
       <button class="snb" data-page="eb" onclick="nav('eb')"><span class="ni">💡</span>EB டிராக்கர்</button>
       <div class="sb-sec">மேலாண்மை</div>
@@ -497,6 +497,7 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
           <button class="btn" onclick="ledImg()">🖼️ படம்</button>
         </div>
       </div>
+      <div class="al info mb4" style="font-size:11.5px"><span>📒</span> <strong>பதிவேடு</strong> என்பது — எல்லா வீடுகளின் வாடகை வசூல் வரலாறு. வீடு மற்றும் தேதி வடிகட்டி தேடலாம், CSV அல்லது படமாக பதிவிறக்கலாம்.</div>
       <div id="ledWrap"></div>
     </div>
 
@@ -510,7 +511,7 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
           <div class="fg"><label>மாதம்</label><input type="month" id="rcpMonth"></div>
           <div class="br" style="margin-top:20px">
             <button class="btn blu" onclick="loadReceipt()">📄 ரசீது</button>
-            <button class="btn" onclick="bulkReceipt()">🖨️ அனைத்தும்</button>
+            <button class="btn" onclick="bulkReceipt()">🖼️ அனைத்தும் படமாக</button>
           </div>
         </div>
       </div>
@@ -783,7 +784,7 @@ function handleLogout() {
 // ============================================================
 const PAGE_TITLES = {
   dashboard:'டாஷ்போர்டு', monthly:'மாத பதிவு (ஒவ்வொன்றாக)', record:'தனி பதிவு', bulk:'மொத்த பதிவு (அனைத்தும்)',
-  ledger:'பதிவேடு', receipt:'ரசீது', eb:'EB டிராக்கர்',
+  ledger:'பதிவேடு — வரவு செலவு பட்டியல்', receipt:'ரசீது', eb:'EB டிராக்கர்',
   tenants:'குடியிருப்பாளர்', renthistory:'வாடகை திருத்த வரலாறு',
   report:'அறிக்கை', whatsapp:'WhatsApp நினைவூட்டல்', setup:'அமைவு'
 };
@@ -1105,6 +1106,9 @@ async function loadBulk() {
   recCache=recs; tenCache=tens; rhCache=rh;
   // Active tenants only — same as Monthly page
   const activeTens=tens.filter(t=>t.status==='Active');
+  // Store in globals so saveBulk() can read without JSON in onclick attribute
+  window._bulkMonth = m;
+  window._bulkTens = activeTens.map(t=>({house:t.house,name:t.name}));
   g('bulkWrap').innerHTML=`
     <div class="al info mb8"><span>ℹ️</span>
       இங்கே <strong>Active ${activeTens.length} வீடுகள்</strong> மட்டுமே காட்டப்படும். வாடகை RentHistory-ல் இருந்தும், EB-tab-ல் இருந்தும் தானாக நிரப்பப்படும். நீங்கள் <strong>வசூல் தொகை மட்டும்</strong> உள்ளிட்டு சேமிக்கவும்.
@@ -1154,7 +1158,7 @@ async function loadBulk() {
         </table>
       </div>
       <div class="br end mt12">
-        <button class="btn grn" onclick="saveBulk('${m}',${JSON.stringify(activeTens.map(t=>({house:t.house,name:t.name})))})">💾 அனைத்தும் சேமி (${activeTens.length} வீடுகள்)</button>
+        <button class="btn grn" onclick="saveBulk()">💾 அனைத்தும் சேமி (${activeTens.length} வீடுகள்)</button>
       </div>
     </div>
   `;
@@ -1175,8 +1179,11 @@ function bCalc(n) {
   if(ti) ti.value=tot; if(bi) bi.value=tot-recv;
 }
 
-async function saveBulk(month, activeTenList) {
-  if(!month){ toast('மாதம்!','err'); return; }
+async function saveBulk() {
+  const month = window._bulkMonth || gv('bulkMonth');
+  const activeTenList = window._bulkTens || [];
+  if(!month){ toast('மாதம் தேர்ந்தெடுக்கவும்!','err'); return; }
+  if(!activeTenList.length){ toast('முதலில் ஏற்று button அழுத்தவும்!','warn'); return; }
   if(C.token==='DEMO'){
     toast('✅ (டெமோ) '+activeTenList.length+' வீடுகள் சேமிக்கப்பட்டன!','ok'); return;
   }
@@ -1279,27 +1286,50 @@ async function loadReceipt() {
 
 async function bulkReceipt() {
   const m=gv('rcpMonth'); if(!m){ toast('மாதம்!','err'); return; }
-  const recs=await getRecords(); const mRecs=recs.filter(x=>x.month===m);
-  if(!mRecs.length){ toast('இந்த மாதத்தில் பதிவுகள் இல்லை','warn'); return; }
-  const w=window.open('','_blank');
-  w.document.write('<html><head><title>Bulk Receipts '+m+'</title><style>body{font-family:monospace;padding:16px}.rp{page-break-after:always;max-width:340px;margin:0 auto 32px;border:1px solid #e2e8f0;padding:20px;border-radius:8px}.rh{text-align:center;border-bottom:2px dashed #e2e8f0;padding-bottom:10px;margin-bottom:10px}.rr{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}.rb{font-weight:700;border-top:1px solid #e2e8f0;padding-top:7px;margin-top:4px}.rt{font-size:16px;font-weight:900;border-top:3px solid #1a1a2e;padding-top:8px;margin-top:4px}.rf{text-align:center;border-top:2px dashed #e2e8f0;padding-top:8px;margin-top:10px;font-size:10px;color:#94a3b8}@media print{.rp{page-break-after:always}}</style></head><body>');
-  const tens2=tenCache.length?tenCache:await getTenants();
-  mRecs.forEach(r=>{
+  const [recs,tens2]=await Promise.all([getRecords(), tenCache.length?Promise.resolve(tenCache):getTenants()]);
+  tenCache=tens2;
+  const mRecs=recs.filter(x=>x.month===m);
+  if(!mRecs.length){ toast('இந்த மாதத்தில் பதிவுகள் இல்லை — முதலில் மாத பதிவு சேர்க்கவும்','warn'); return; }
+  toast('ரசீதுகள் தயாராகிறது... கொஞ்சம் பொறுக்கவும்','',8000);
+  // Build off-screen receipt cards, capture each as PNG image
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-9999px;top:0;background:#f0f2f5;padding:16px;display:flex;flex-direction:column;gap:12px;z-index:-1;';
+  document.body.appendChild(wrap);
+  for(const r of mRecs){
     const h=HOUSES.find(x=>x.n===+r.house)||{nm:'—'};
     const ten2=tens2.find(x=>x.house===+r.house)||{};
     const tenName2=ten2.name||h.nm||'';
-    w.document.write(`<div class="rp"><div class="rh"><h2>🏠 வாடகை ரசீது</h2><p style="font-weight:700">${tenName2}</p><p>வீடு ${r.house} · ${mlabel(r.month)}</p></div>
-      <div class="rr"><span>வாடகை</span><span>${fmt(r.rent)}</span></div>
-      ${r.water>0?`<div class="rr"><span>தண்ணீர்</span><span>${fmt(r.water)}</span></div>`:''}
-      ${r.eb>0?`<div class="rr"><span>மின்சாரம் (EB)</span><span>${fmt(r.eb)}</span></div>`:''}
-      ${r.backlog>0?`<div class="rr" style="color:#9a3412"><span>📌 முன் பாக்கி</span><span>${fmt(r.backlog)}</span></div>`:''}
-      <div class="rr rb"><span>மொத்தம்</span><span>${fmt(r.total)}</span></div>
-      <div class="rr"><span>வசூல்</span><span>${fmt(r.received)}</span></div>
-      <div class="rr rt"><span>இருப்பு</span><span>${fmt(r.balance)}</span></div>
-      <div class="rf">நன்றி! | ${new Date().toLocaleDateString('ta-IN')}</div>
-    </div>\`);
-  });
-  w.document.write('</body></html>'); w.document.close(); setTimeout(()=>w.print(),400);
+    const card=document.createElement('div');
+    card.style.cssText='font-family:Courier New,monospace;background:#fff;padding:22px;width:340px;border:1px solid #e2e8f0;border-radius:10px;';
+    const rows=[
+      ['வாடகை', fmt(r.rent)],
+      r.water>0?['தண்ணீர்', fmt(r.water)]:null,
+      r.eb>0?['மின்சாரம் (EB)', fmt(r.eb)]:null,
+      r.backlog>0?['📌 முன் பாக்கி', fmt(r.backlog), '#9a3412']:null,
+    ].filter(Boolean);
+    card.innerHTML=`
+      <div style="text-align:center;border-bottom:2px dashed #e2e8f0;padding-bottom:12px;margin-bottom:12px">
+        <div style="font-size:18px;font-weight:900;letter-spacing:2px">🏠 வாடகை ரசீது</div>
+        <div style="font-size:14px;font-weight:800;margin-top:5px">${tenName2}</div>
+        <div style="font-size:11.5px;color:#64748b;margin-top:3px">வீடு ${r.house} &nbsp;·&nbsp; ${mlabel(r.month)}</div>
+      </div>
+      ${rows.map(([l,v,col])=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;${col?'color:'+col:''}""><span>${l}</span><span>${v}</span></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #e2e8f0;padding-top:7px;margin-top:5px;font-size:13px"><span>மொத்தம்</span><span>${fmt(r.total)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>வசூல்</span><span>${fmt(r.received)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900;border-top:2.5px solid #1a1a2e;padding-top:8px;margin-top:5px"><span>இருப்பு</span><span>${fmt(r.balance)}</span></div>
+      <div style="text-align:center;border-top:2px dashed #e2e8f0;padding-top:8px;margin-top:12px;font-size:10px;color:#94a3b8">நன்றி! &nbsp;|&nbsp; ${new Date().toLocaleDateString('ta-IN')}</div>`;
+    wrap.appendChild(card);
+    // Capture and download
+    const canvas=await html2canvas(card,{scale:2,backgroundColor:'#fff',useCORS:true});
+    const a=document.createElement('a');
+    const safeName=tenName2.replace(/\s+/g,'_');
+    a.href=canvas.toDataURL('image/png');
+    a.download=`receipt_${m}_house${r.house}_${safeName}.png`;
+    a.click();
+    await new Promise(res=>setTimeout(res,350));
+  }
+  document.body.removeChild(wrap);
+  toast(`✅ ${mRecs.length} ரசீதுகள் படமாக பதிவிறக்கப்பட்டன!`,'ok');
 }
 
 function buildRcp(r,hobj,ten) {
