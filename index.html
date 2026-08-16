@@ -1632,13 +1632,18 @@ function getEffectiveRent(rentHistory, tenants, houseNum, month) {
 async function loadMonthly() {
   const m=gv('monMonth'); if(!m){toast('மாதம் தேர்ந்தெடுக்கவும்!','err');return;}
   g('monWrap').innerHTML='<div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div>';
-  const [recs,tens,rh]=await Promise.all([getRecords(),getTenants(),getRentHistory()]);
+  // Option A: fetch EB records alongside everything else
+  const [recs,tens,rh,ebRecs]=await Promise.all([getRecords(),getTenants(),getRentHistory(),getEB()]);
   tenCache=tens; rhCache=rh;
   const activeTens=tens.filter(t=>t.status==='Active');
   const mRecs=recs.filter(r=>r.month===m);
+  const ebMissing=activeTens.filter(t=>!mRecs.find(r=>r.house===t.house)&&!ebRecs.find(e=>e.house===t.house&&e.month===m)).length;
   g('monWrap').innerHTML=`
     <div class="card">
       <div class="card-hd"><div class="card-hd-left">📅 ${mlabel(m)} — ${activeTens.length} Active வீடுகள்</div></div>
+      ${ebMissing>0
+        ?`<div class="al warn mb8"><span>💡</span> <strong>${ebMissing} வீடுகளுக்கு</strong> EB பதிவு இல்லை. Auto உருவாக்கு செய்வதற்கு முன் EB Tracker-ல் பதிவு செய்யவும்.</div>`
+        :`<div class="al ok mb8"><span>✅</span> அனைத்து வீடுகளுக்கும் EB பதிவு உள்ளது — Auto உருவாக்கு செய்யலாம்!</div>`}
       <div class="tw"><table>
         <tr><th>வீடு</th><th>பெயர்</th><th>வாடகை</th><th>பாக்லாக்</th><th>EB</th><th>மொத்தம்</th><th>நிலை</th><th>நடவடிக்கை</th></tr>
         ${activeTens.map(ten=>{
@@ -1647,13 +1652,17 @@ async function loadMonthly() {
           const pm=prevYM(m);
           const prevRec=recs.find(x=>x.house===ten.house&&x.month===pm);
           const backlog=r?r.backlog:(prevRec?prevRec.balance:0);
-          const total=r?r.total:(eff.rent+eff.water+eff.maint+backlog);
+          // Look up EB from EB tab for this house+month (Option A)
+          const ebRec=ebRecs.find(x=>x.house===ten.house&&x.month===m);
+          const ebAmt=r?r.eb:(ebRec?ebRec.amount:0);
+          const total=r?r.total:(eff.rent+eff.water+eff.maint+ebAmt+backlog);
           const st=r?r.payStatus:'none';
+          const hasEB=!!ebRec;
           return `<tr>
             <td class="fw7">வீடு ${ten.house}</td><td>${ten.name}</td>
             <td class="tr">${fmt(eff.rent)}</td>
             <td class="tr ${backlog>0?'ta':''}">${backlog>0?fmt(backlog):'—'}</td>
-            <td class="tr">${r&&r.eb>0?fmt(r.eb):'—'}</td>
+            <td class="tr ${!r&&!hasEB?'tr2':''}">${ebAmt>0?fmt(ebAmt):'<span style="color:#ef4444;font-size:10px">இல்லை</span>'}</td>
             <td class="tr fw7">${fmt(total)}</td>
             <td>${r?`<span class="chip sm ${st==='full'?'paid':st==='partial'?'partial':'unpaid'}">${st==='full'?'✅ முழு':st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span>`:'<span class="chip sm pending">📝 பதிவு இல்லை</span>'}</td>
             <td><button class="btn xs ${r?'':'blu'}" onclick="openMonModal(${ten.house},'${m}')">${r?'✏️ திருத்து':'➕ சேர்'}</button></td>
@@ -1665,20 +1674,33 @@ async function loadMonthly() {
 
 async function autoGenerate() {
   const m=gv('monMonth'); if(!m){toast('மாதம்!','err');return;}
-  if(!confirm(`${mlabel(m)} மாதத்திற்கு அனைத்து Active வீடுகளுக்கும் பதிவு உருவாக்கவா?`)) return;
-  const [recs,tens,rh]=await Promise.all([getRecords(),getTenants(),getRentHistory()]);
+  // Option A: fetch EB records first — they must be entered before auto-generating
+  const [recs,tens,rh,ebRecs]=await Promise.all([getRecords(),getTenants(),getRentHistory(),getEB()]);
   tenCache=tens; rhCache=rh;
   const activeTens=tens.filter(t=>t.status==='Active');
   const existing=recs.filter(r=>r.month===m).map(r=>r.house);
   const toCreate=activeTens.filter(t=>!existing.includes(t.house));
   if(!toCreate.length){toast('✅ இந்த மாதம் அனைத்து வீடுகளுக்கும் ஏற்கனவே பதிவு உள்ளது!','ok');return;}
+  // Warn if any house is missing EB entry for this month
+  const missingEB=toCreate.filter(t=>!ebRecs.find(e=>e.house===t.house&&e.month===m));
+  if(missingEB.length>0){
+    const names=missingEB.map(t=>`வீடு ${t.house}`).join(', ');
+    if(!confirm(`⚠️ ${missingEB.length} வீடுகளுக்கு EB பதிவு இல்லை:
+${names}
+
+EB = ₹0 ஆக பதிவு உருவாக்கவா? (பின்னர் திருத்தலாம்)`)) return;
+  }
+  if(!confirm(`${mlabel(m)} மாதத்திற்கு அனைத்து Active வீடுகளுக்கும் பதிவு உருவாக்கவா?`)) return;
   const rows=toCreate.map(ten=>{
     const eff=getEffectiveRent(rh,tens,ten.house,m);
     const pm=prevYM(m);
     const prevRec=recs.find(x=>x.house===ten.house&&x.month===pm);
     const backlog=prevRec?prevRec.balance:0;
-    const total=eff.rent+eff.water+eff.maint+backlog;
-    return [ten.house,m,eff.rent,eff.water,0,eff.maint,backlog,total,'none',0,total,'Auto generated',new Date().toISOString()];
+    // Pick up EB from EB tab (Option A)
+    const ebRec=ebRecs.find(x=>x.house===ten.house&&x.month===m);
+    const ebAmt=ebRec?ebRec.amount:0;
+    const total=eff.rent+eff.water+eff.maint+ebAmt+backlog;
+    return [ten.house,m,eff.rent,eff.water,ebAmt,eff.maint,backlog,total,'none',0,total,'Auto generated',new Date().toISOString()];
   });
   if(C.token==='DEMO'){toast(`✅ (டெமோ) ${rows.length} வீடுகளுக்கு பதிவு உருவாக்கப்பட்டது!`,'ok');loadMonthly();return;}
   try{
