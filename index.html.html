@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>வாடகை Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a1a2e;--navy2:#16213e;--navy3:#0f3460;
+  --blue:#3b82f6;--blue2:#2563eb;
+  --green:#22c55e;--green2:#16a34a;
+  --red:#ef4444;--red2:#dc2626;
+  --amber:#f59e0b;--amber2:#d97706;
+  --gray:#64748b;--gray2:#94a3b8;--gray3:#e2e8f0;--gray4:#f8fafc;--gray5:#f0f2f5;
+  --white:#fff;--text:#1e293b;
+  --card-shadow:0 1px 4px rgba(0,0,0,.07);
+  --sb-width:210px;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray5);color:var(--text);font-size:14px;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
+.login-box{background:rgba(255,255,255,.07);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.13);border-radius:24px;padding:48px 40px;text-align:center;max-width:380px;width:90%}
+.login-logo{font-size:52px;margin-bottom:12px}
+.login-title{font-size:28px;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-.5px}
+.login-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:24px}
+.login-pills{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.login-pills span{background:rgba(255,255,255,.09);color:rgba(255,255,255,.6);font-size:10.5px;padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.12)}
+.btn-google{background:#fff;color:#374151;border:none;padding:13px 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all .2s;width:100%;justify-content:center;font-family:inherit;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.btn-google:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.login-note{font-size:11px;color:rgba(255,255,255,.28);margin-top:20px;line-height:1.7}
+
+/* LAYOUT */
+#app{display:none;min-height:100vh}
+.sidebar{width:var(--sb-width);background:var(--navy);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:200;overflow-y:auto;transition:transform .3s}
+.main{margin-left:var(--sb-width);min-height:100vh;padding:20px 24px 30px}
+
+/* SIDEBAR */
+.sb-brand{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.sb-logo .icon{font-size:20px}
+.sb-logo h1{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sb-sub{font-size:10px;color:rgba(255,255,255,.33);margin-bottom:8px}
+.sb-user{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);padding:7px 10px;border-radius:8px}
+.sb-user img{width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.sb-user .uname{font-size:11px;color:rgba(255,255,255,.7);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-user .logout{font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;white-space:nowrap;padding:2px 4px;border-radius:4px}
+.sb-user .logout:hover{color:#f87171;background:rgba(239,68,68,.15)}
+.sb-nav{padding:8px 0;flex:1}
+.sb-sec{font-size:9px;font-weight:700;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:.1em;padding:10px 16px 3px}
+.snb{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.58);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit;border-left:3px solid transparent;transition:all .13s}
+.snb:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.88)}
+.snb.active{background:rgba(59,130,246,.2);color:#93c5fd;border-left-color:#3b82f6}
+.snb .ni{font-size:14px;width:20px;text-align:center;flex-shrink:0}
+.snb .badge{margin-left:auto;background:#ef4444;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sb-footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:rgba(255,255,255,.18)}
+
+/* PAGES */
+.page{display:none;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-title{font-size:19px;font-weight:800;color:var(--navy);letter-spacing:-.4px}
+.topbar-sub{font-size:13px;font-weight:400;color:var(--gray);margin-left:4px}
+
+/* METRICS */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.mc{background:var(--white);border:1px solid var(--gray3);border-radius:12px;padding:14px 16px;box-shadow:var(--card-shadow);position:relative;overflow:hidden}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.mc.blue::after{background:var(--blue)}.mc.green::after{background:var(--green)}.mc.red::after{background:var(--red)}.mc.amber::after{background:var(--amber)}.mc.purple::after{background:#8b5cf6}
+.ml{font-size:10px;color:var(--gray);font-weight:700;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.mv{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.mv.blue{color:var(--blue)}.mv.green{color:var(--green)}.mv.red{color:var(--red)}.mv.amber{color:var(--amber)}.mv.purple{color:#8b5cf6}
+.ms{font-size:10.5px;color:var(--gray2);margin-top:3px}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--gray3);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--card-shadow)}
+.card-hd{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-hd-left{display:flex;align-items:center;gap:6px}
+.cbadge{background:var(--gray4);color:var(--gray);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.fg label{font-size:11px;color:var(--gray);font-weight:600}
+.fg input,.fg select,.fg textarea{font-size:13px;padding:8px 11px;border:1.5px solid var(--gray3);border-radius:8px;background:var(--white);color:var(--text);width:100%;font-family:inherit;transition:border .13s;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.09)}
+.fg input[readonly]{background:var(--gray4);color:var(--gray);cursor:default}
+.fg textarea{resize:vertical;min-height:60px}
+.hint{font-size:10px;color:var(--gray2);margin-top:2px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.r4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+
+/* BUTTONS */
+.btn{border:1.5px solid var(--gray3);background:var(--white);padding:8px 16px;border-radius:8px;font-size:12.5px;cursor:pointer;color:var(--text);font-family:inherit;font-weight:600;transition:all .13s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;line-height:1}
+.btn:hover{background:var(--gray4)}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.pri:hover{background:var(--navy2)}
+.btn.grn{background:var(--green);color:#fff;border-color:var(--green)}.btn.grn:hover{background:var(--green2)}
+.btn.red{background:var(--red);color:#fff;border-color:var(--red)}.btn.red:hover{background:var(--red2)}
+.btn.amb{background:var(--amber);color:#fff;border-color:var(--amber)}.btn.amb:hover{background:var(--amber2)}
+.btn.blu{background:var(--blue);color:#fff;border-color:var(--blue)}.btn.blu:hover{background:var(--blue2)}
+.btn.sm{padding:5px 11px;font-size:11.5px;border-radius:7px}
+.btn.xs{padding:3px 8px;font-size:11px;border-radius:6px}
+.br{display:flex;gap:8px;flex-wrap:wrap}.br.end{justify-content:flex-end}.br.bet{justify-content:space-between}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:9px;border:1px solid var(--gray3)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--gray4);color:var(--gray);padding:8px 11px;text-align:left;font-weight:700;border-bottom:1.5px solid var(--gray3);white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+td{padding:9px 11px;border-bottom:1px solid var(--gray3);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfd}
+.tfoot td{background:var(--gray4);font-weight:700;font-size:12px;border-top:2px solid var(--gray3)}
+.tr{text-align:right!important}
+
+/* CHIPS */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.chip.paid{background:#dcfce7;color:#16a34a}.chip.partial{background:#fef3c7;color:#d97706}.chip.unpaid{background:#fee2e2;color:#dc2626}.chip.pending{background:#dbeafe;color:#2563eb}
+.chip.sm{padding:2px 7px;font-size:10px}
+
+/* PAY STATUS SELECTOR */
+.pay-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.pay-chip{border:2px solid var(--gray3);background:var(--white);padding:7px 16px;border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .13s;font-family:inherit}
+.pay-chip:hover{border-color:var(--gray2)}
+.pay-chip.sf{background:#dcfce7;border-color:var(--green);color:var(--green2)}
+.pay-chip.sp{background:#fef3c7;border-color:var(--amber);color:var(--amber2)}
+.pay-chip.sn{background:#fee2e2;border-color:var(--red);color:var(--red2)}
+
+/* TOTAL BAR */
+.tbar{background:var(--gray4);border:1px solid var(--gray3);border-radius:9px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.tbar-l{font-size:12px;color:var(--gray);font-weight:600}
+.tbar-v{font-size:21px;font-weight:800;color:var(--navy)}
+
+/* PROGRESS */
+.pbar-wrap{background:var(--gray3);border-radius:20px;height:8px;overflow:hidden;margin:4px 0}
+.pbar{height:100%;border-radius:20px;transition:width .5s;background:var(--green)}
+.pbar.am{background:var(--amber)}.pbar.rd{background:var(--red)}
+
+/* HOUSE GRID */
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
+.hcard{background:var(--white);border:1.5px solid var(--gray3);border-radius:12px;padding:13px;cursor:pointer;transition:all .18s;position:relative}
+.hcard:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 4px 18px rgba(59,130,246,.12)}
+.hcard.st-paid{border-color:#86efac;background:#f0fdf4}
+.hcard.st-partial{border-color:#fcd34d;background:#fffbeb}
+.hcard.st-unpaid{border-color:#fca5a5;background:#fff5f5}
+.hcard .hn{font-size:10.5px;font-weight:700;color:var(--gray);margin-bottom:3px}
+.hcard .hname{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:7px}
+.hcard .hamt{font-size:17px;font-weight:800}
+.hcard .hst{position:absolute;top:10px;right:9px}
+
+/* TOAST */
+#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:300px}
+.toast{background:var(--navy);color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;animation:tIn .25s ease;box-shadow:0 4px 20px rgba(0,0,0,.22)}
+.toast.ok{background:#16a34a}.toast.err{background:#dc2626}.toast.warn{background:#d97706}
+@keyframes tIn{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(15px)}}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:22px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.modal-title{font-size:15px;font-weight:800;color:var(--navy)}
+.modal-x{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);line-height:1;padding:2px 6px;border-radius:6px}
+.modal-x:hover{background:var(--gray4);color:var(--text)}
+
+/* ALERTS */
+.al{border-radius:9px;padding:11px 13px;margin-bottom:10px;font-size:12.5px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.al.info{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+.al.warn{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+.al.err{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.al.ok{background:#dcfce7;color:#14532d;border:1px solid #bbf7d0}
+
+/* MISC */
+.sep{border:none;border-top:1px solid var(--gray3);margin:12px 0}
+.empty{text-align:center;padding:40px 20px;color:var(--gray2)}
+.empty .ei{font-size:44px;margin-bottom:10px}
+.loading{text-align:center;padding:32px;color:var(--gray2);display:flex;align-items:center;justify-content:center;gap:8px}
+.spin{width:18px;height:18px;border:2.5px solid var(--gray3);border-top-color:var(--blue);border-radius:50%;animation:sp .65s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+.flex{display:flex;align-items:center;gap:8px}
+.flex-bet{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tg{color:var(--green)!important}.tr2{color:var(--red)!important}.ta{color:var(--amber)!important}.tb{color:var(--blue)!important}
+.fw7{font-weight:700!important}.fw8{font-weight:800!important}
+.fs10{font-size:10px}.fs11{font-size:11px}.fs12{font-size:12px}.fs13{font-size:13px}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}
+.hidden{display:none!important}
+code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;font-family:monospace}
+
+/* TENANT */
+.tcard{background:var(--white);border:1.5px solid var(--gray3);border-radius:12px;padding:14px;display:flex;align-items:flex-start;gap:13px;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s}
+.tcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.09);border-color:#cbd5e1}
+.tavatar{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;font-weight:800;flex-shrink:0}
+.tinfo{flex:1;min-width:0}
+.tname{font-size:13.5px;font-weight:800;color:var(--navy)}
+.thouse{font-size:11px;color:var(--gray);margin-top:1px}
+.tmeta{display:flex;gap:10px;margin-top:5px;flex-wrap:wrap}
+.tmeta span{font-size:11px;color:var(--gray);display:flex;align-items:center;gap:2px}
+
+/* RECEIPT */
+.receipt-box{background:#fff;padding:24px;max-width:360px;margin:0 auto;font-family:'Courier New',monospace;border:1px solid var(--gray3);border-radius:12px}
+.rcp-hd{text-align:center;padding-bottom:12px;border-bottom:2px dashed var(--gray3);margin-bottom:12px}
+.rcp-hd h2{font-size:17px;font-weight:900;letter-spacing:2px}
+.rcp-hd p{font-size:11.5px;color:var(--gray);margin-top:3px}
+.rcp-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12.5px}
+.rcp-row.bold{font-weight:700;border-top:1px solid var(--gray3);padding-top:7px;margin-top:4px}
+.rcp-row.total{font-size:15px;font-weight:900;border-top:2.5px solid var(--navy);padding-top:8px;margin-top:4px}
+.rcp-ft{text-align:center;margin-top:12px;padding-top:10px;border-top:2px dashed var(--gray3);font-size:10px;color:var(--gray2)}
+
+/* EB */
+.eb-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
+.ebm{background:var(--gray4);border:1.5px solid var(--gray3);border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer;transition:all .13s}
+.ebm:hover{border-color:var(--blue)}
+.ebm.has{background:#eff6ff;border-color:#bfdbfe}
+.ebm .em-n{font-size:10px;font-weight:700;color:var(--gray);margin-bottom:2px}
+.ebm .em-u{font-size:14px;font-weight:800;color:var(--navy)}
+.ebm .em-a{font-size:10px;color:var(--gray)}
+
+/* REPORT */
+.rpt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.rpt-card{background:var(--white);border:1px solid var(--gray3);border-radius:12px;padding:14px}
+.rpt-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.rpt-name{font-size:13px;font-weight:800;color:var(--navy)}
+.rpt-pct{font-size:17px;font-weight:800}
+
+/* BULK */
+.btable{width:100%;border-collapse:collapse;font-size:12px}
+.btable th{background:var(--navy);color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:600;white-space:nowrap;position:sticky;top:0;z-index:5}
+.btable td{padding:5px 5px;border-bottom:1px solid var(--gray3);vertical-align:middle}
+.btable td input,.btable td select{font-size:12px;padding:5px 7px;border:1.5px solid var(--gray3);border-radius:6px;width:100%;font-family:inherit;min-width:60px}
+.btable td input:focus,.btable td select:focus{border-color:var(--blue);outline:none}
+.btable tr:hover td{background:#f8fafc}
+.btable .ro input{background:var(--gray4);color:var(--gray)}
+
+/* SETUP */
+.setup-banner{background:linear-gradient(135deg,var(--navy) 0%,var(--navy3) 100%);color:#fff;border-radius:14px;padding:20px;margin-bottom:14px}
+.setup-banner h3{font-size:15px;font-weight:800;margin-bottom:5px}
+.setup-banner p{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:14px;line-height:1.65}
+.setup-step{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:rgba(255,255,255,.73);margin-bottom:7px;line-height:1.5}
+.snum{background:rgba(255,255,255,.16);color:#fff;font-weight:800;font-size:11px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:0}
+
+/* WA */
+.wcard{background:var(--white);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.wcard-info{flex:1;min-width:0}
+.wcard-name{font-size:13px;font-weight:700;color:var(--navy)}
+.wcard-amt{font-size:12px;color:var(--red);font-weight:600;margin-top:2px}
+.wa-btn{background:#25d366;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;font-family:inherit;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:background .13s;flex-shrink:0}
+.wa-btn:hover{background:#128c7e}
+
+/* MOBILE */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--navy);z-index:300;padding:5px 0 8px;border-top:1px solid rgba(255,255,255,.08)}
+.mnav-items{display:flex;justify-content:space-around}
+.mnb{background:none;border:none;color:rgba(255,255,255,.48);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-family:inherit;cursor:pointer;padding:4px 8px;border-radius:7px;transition:color .13s}
+.mnb.active{color:#93c5fd}
+.mnb .mi{font-size:17px}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
+.mob-ham{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);padding:2px 6px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding:12px 14px 74px}
+  .mob-nav{display:block}
+  .mob-overlay{display:none}
+  .mob-ham{display:inline-flex}
+  .mg{grid-template-columns:1fr 1fr}
+  .r2,.r3,.r4{grid-template-columns:1fr}
+  .hgrid{grid-template-columns:repeat(2,1fr)}
+  .rpt-grid{grid-template-columns:1fr}
+  .eb-grid{grid-template-columns:repeat(4,1fr)}
+}
+
+@media print{
+  .sidebar,.mob-nav,#toast-wrap,.overlay,.topbar .btn,.btn,.br{display:none!important}
+  .main{margin:0!important;padding:0!important}
+  .page{display:block!important}
+  body,html{background:#fff!important}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🏠</div>
+    <div class="login-title">வாடகை Pro</div>
+    <div class="login-sub">15 வீடுகள் · Tamil Nadu மேலாண்மை</div>
+    <div class="login-pills">
+      <span>📊 டாஷ்போர்டு</span><span>📝 பதிவு</span><span>🧾 ரசீது</span><span>⚡ EB</span><span>👥 குடியிருப்பு</span>
+    </div>
+    <button class="btn-google" onclick="handleLogin()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Google உடன் உள்நுழைக
+    </button>
+    <p class="login-note">Google Sheets + Drive இலவச கணக்கு பயன்படுத்தப்படும்.<br>எந்த தரவும் வெளியில் சேகரிக்கப்படுவதில்லை.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><span class="icon">🏠</span><h1>வாடகை Pro</h1></div>
+      <div class="sb-sub">15 வீடுகள் · Tamil Nadu</div>
+      <div class="sb-user">
+        <img id="sbAvatar" src="" alt="U">
+        <span class="uname" id="sbName">பயனர்</span>
+        <span class="logout" onclick="handleLogout()">வெளி</span>
+      </div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">முதன்மை</div>
+      <button class="snb active" data-page="dashboard" onclick="nav('dashboard')"><span class="ni">📊</span>டாஷ்போர்டு</button>
+      <button class="snb" data-page="record" onclick="nav('record')"><span class="ni">📝</span>வாடகை பதிவு</button>
+      <button class="snb" data-page="bulk" onclick="nav('bulk')"><span class="ni">⚡</span>மொத்த பதிவு</button>
+      <div class="sb-sec">தகவல்</div>
+      <button class="snb" data-page="ledger" onclick="nav('ledger')"><span class="ni">📒</span>பதிவேடு</button>
+      <button class="snb" data-page="receipt" onclick="nav('receipt')"><span class="ni">🧾</span>ரசீது</button>
+      <button class="snb" data-page="eb" onclick="nav('eb')"><span class="ni">💡</span>EB டிராக்கர்</button>
+      <div class="sb-sec">மேலாண்மை</div>
+      <button class="snb" data-page="tenants" onclick="nav('tenants')"><span class="ni">👥</span>குடியிருப்பாளர்</button>
+      <button class="snb" data-page="report" onclick="nav('report')"><span class="ni">📈</span>அறிக்கை</button>
+      <button class="snb" data-page="whatsapp" onclick="nav('whatsapp')"><span class="ni">💬</span>WhatsApp<span class="badge" id="waBadge">0</span></button>
+      <div class="sb-sec">அமைப்பு</div>
+      <button class="snb" data-page="setup" onclick="nav('setup')"><span class="ni">⚙️</span>அமைவு</button>
+    </div>
+    <div class="sb-footer">வாடகை Pro v2.0 · Free Tier Only</div>
+  </div>
+
+  <div class="mob-overlay" id="mobOverlay" onclick="closeMob()"></div>
+
+  <div class="mob-nav">
+    <div class="mnav-items">
+      <button class="mnb active" data-page="dashboard" onclick="nav('dashboard')"><span class="mi">📊</span>டாஷ்</button>
+      <button class="mnb" data-page="record" onclick="nav('record')"><span class="mi">📝</span>பதிவு</button>
+      <button class="mnb" data-page="ledger" onclick="nav('ledger')"><span class="mi">📒</span>பதிவேடு</button>
+      <button class="mnb" data-page="tenants" onclick="nav('tenants')"><span class="mi">👥</span>குடி</button>
+      <button class="mnb" onclick="toggleMob()"><span class="mi">☰</span>மேலும்</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="mob-ham" onclick="toggleMob()">☰</button>
+        <div class="topbar-title" id="pageTitle">டாஷ்போர்டு</div>
+      </div>
+      <div id="topbarActions" class="flex"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div id="dashWrap"><div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div></div>
+    </div>
+
+    <!-- RECORD -->
+    <div class="page" id="page-record">
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">🏠 வீடு & மாதம்</div></div>
+        <div class="r2">
+          <div class="fg"><label>வீடு</label>
+            <select id="recHouse" onchange="onRecHouseChange()"><option value="">-- தேர்ந்தெடு --</option></select>
+          </div>
+          <div class="fg"><label>மாதம்</label><input type="month" id="recMonth" onchange="onRecMonthChange()"></div>
+        </div>
+        <div id="recAlert" class="hidden"></div>
+      </div>
+
+      <div class="card hidden" id="recForm">
+        <div class="card-hd"><div class="card-hd-left">💰 கட்டண விவரம்</div></div>
+        <div class="r3">
+          <div class="fg"><label>வாடகை ₹</label><input type="number" id="recRent" min="0" oninput="calcRec()"></div>
+          <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="recWater" min="0" value="0" oninput="calcRec()"></div>
+          <div class="fg"><label>மின்சாரம் ₹</label><input type="number" id="recEB" min="0" value="0" oninput="calcRec()"></div>
+        </div>
+        <div class="r2">
+          <div class="fg"><label>மற்றவை ₹</label><input type="number" id="recOther" min="0" value="0" oninput="calcRec()"></div>
+          <div class="fg">
+            <label>முந்தைய இருப்பு ₹</label>
+            <input type="number" id="recPrev" readonly>
+            <div class="hint">கடந்த மாதத்தில் இருந்து தானாக</div>
+          </div>
+        </div>
+        <div class="tbar"><div class="tbar-l">மொத்த தொகை</div><div class="tbar-v" id="recTotalDisplay">₹0</div></div>
+        <hr class="sep">
+        <div class="card-hd"><div class="card-hd-left">✅ கட்டண நிலை</div></div>
+        <div class="pay-chips">
+          <button class="pay-chip" id="pc-full" onclick="setPayStatus('full')">✅ முழுமையாக</button>
+          <button class="pay-chip" id="pc-partial" onclick="setPayStatus('partial')">⚡ பகுதியாக</button>
+          <button class="pay-chip" id="pc-none" onclick="setPayStatus('none')">❌ இல்லை</button>
+        </div>
+        <div id="recRecvDiv" class="hidden mt8">
+          <div class="fg"><label>பெற்ற தொகை ₹</label><input type="number" id="recRecv" min="0" value="0" oninput="calcBalance()"></div>
+        </div>
+        <div class="r2 mt8">
+          <div class="fg"><label>செலுத்திய தொகை ₹</label><input type="number" id="recPaid" readonly></div>
+          <div class="fg"><label>இருப்பு ₹</label><input type="number" id="recBal" readonly></div>
+        </div>
+        <div class="fg"><label>குறிப்பு</label><textarea id="recNote" placeholder="குறிப்பு..."></textarea></div>
+        <div class="br end mt8">
+          <button class="btn" onclick="clearRec()">🗑️ அழி</button>
+          <button class="btn grn" onclick="saveRecord()">💾 சேமி</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- BULK -->
+    <div class="page" id="page-bulk">
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">⚡ மொத்த மாதாந்திர பதிவு</div></div>
+        <div class="r2">
+          <div class="fg"><label>மாதம்</label><input type="month" id="bulkMonth"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn blu" onclick="loadBulk()">📋 படிவம் ஏற்று</button>
+          </div>
+        </div>
+      </div>
+      <div id="bulkWrap"></div>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="page" id="page-ledger">
+      <div class="card">
+        <div class="r3">
+          <div class="fg"><label>வீடு</label>
+            <select id="ledHouse"><option value="">எல்லா வீடுகளும்</option></select>
+          </div>
+          <div class="fg"><label>தொடக்கம்</label><input type="month" id="ledFrom"></div>
+          <div class="fg"><label>முடிவு</label><input type="month" id="ledTo"></div>
+        </div>
+        <div class="br end">
+          <button class="btn" onclick="loadLedger()">🔍 தேடு</button>
+          <button class="btn" onclick="ledCSV()">📥 CSV</button>
+          <button class="btn" onclick="ledImg()">🖼️ படம்</button>
+        </div>
+      </div>
+      <div id="ledWrap"></div>
+    </div>
+
+    <!-- RECEIPT -->
+    <div class="page" id="page-receipt">
+      <div class="card">
+        <div class="r3">
+          <div class="fg"><label>வீடு</label>
+            <select id="rcpHouse"><option value="">-- தேர்ந்தெடு --</option></select>
+          </div>
+          <div class="fg"><label>மாதம்</label><input type="month" id="rcpMonth"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn blu" onclick="loadReceipt()">📄 ரசீது</button>
+            <button class="btn" onclick="bulkReceipt()">🖨️ அனைத்தும்</button>
+          </div>
+        </div>
+      </div>
+      <div id="rcpWrap"></div>
+    </div>
+
+    <!-- EB -->
+    <div class="page" id="page-eb">
+      <div class="card">
+        <div class="r3">
+          <div class="fg"><label>வீடு</label>
+            <select id="ebHouse"><option value="">-- தேர்ந்தெடு --</option></select>
+          </div>
+          <div class="fg"><label>ஆண்டு</label><input type="number" id="ebYear" value="" min="2020" max="2035"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn blu" onclick="loadEB()">🔍 ஏற்று</button>
+            <button class="btn" onclick="ebCSV()">📥 CSV</button>
+          </div>
+        </div>
+      </div>
+      <div id="ebContent"></div>
+      <div class="card hidden" id="ebForm">
+        <div class="card-hd"><div class="card-hd-left">⚡ EB பதிவு சேர்</div></div>
+        <div class="r3">
+          <div class="fg"><label>மாதம்</label><input type="month" id="ebMonth"></div>
+          <div class="fg"><label>தொடக்க மீட்டர்</label><input type="number" id="ebStart" oninput="calcEB()"></div>
+          <div class="fg"><label>முடிவு மீட்டர்</label><input type="number" id="ebEnd" oninput="calcEB()"></div>
+        </div>
+        <div class="r3">
+          <div class="fg"><label>யூனிட்கள்</label><input type="number" id="ebUnits" readonly></div>
+          <div class="fg"><label>விலை/யூனிட் ₹</label><input type="number" id="ebRate" value="6" oninput="calcEB()"></div>
+          <div class="fg"><label>மொத்த தொகை ₹</label><input type="number" id="ebAmt" readonly></div>
+        </div>
+        <div class="br end"><button class="btn grn" onclick="saveEB()">💾 சேமி</button></div>
+      </div>
+    </div>
+
+    <!-- TENANTS -->
+    <div class="page" id="page-tenants">
+      <div id="tenantWrap"><div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div></div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="page" id="page-report">
+      <div class="card">
+        <div class="r2">
+          <div class="fg"><label>ஆண்டு</label><input type="number" id="reportYear" value="" min="2020" max="2035"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn blu" onclick="loadReport()">📊 அறிக்கை</button>
+            <button class="btn" onclick="window.print()">🖨️ அச்சு</button>
+          </div>
+        </div>
+      </div>
+      <div id="reportWrap"></div>
+    </div>
+
+    <!-- WHATSAPP -->
+    <div class="page" id="page-whatsapp">
+      <div class="card">
+        <div class="r2">
+          <div class="fg"><label>மாதம்</label><input type="month" id="waMonth"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn grn" onclick="loadWA()">📱 நினைவூட்டல்</button>
+          </div>
+        </div>
+      </div>
+      <div id="waWrap"></div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="page" id="page-setup">
+      <div class="setup-banner">
+        <h3>⚙️ Google API அமைவு</h3>
+        <p>Google Sheets + Drive இலவச கணக்கில் எல்லா தரவும் சேமிக்கப்படும்.</p>
+        <div class="setup-step"><span class="snum">1</span>console.cloud.google.com → புதிய Project "Vaadagai Pro"</div>
+        <div class="setup-step"><span class="snum">2</span>Sheets API + Drive API + People API இயக்கு</div>
+        <div class="setup-step"><span class="snum">3</span>OAuth 2.0 Client ID உருவாக்கு (Web App) → இந்த URL Authorized Origin-ல் சேர்</div>
+        <div class="setup-step"><span class="snum">4</span>Google Sheet 3 tabs: Records · Tenants · EB</div>
+        <div class="setup-step"><span class="snum">5</span>கீழே உள்ளிட்டு சேமி</div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">🔑 API விவரங்கள்</div></div>
+        <div class="fg"><label>OAuth Client ID</label><input id="cfgClient" placeholder="xxxx.apps.googleusercontent.com"></div>
+        <div class="fg"><label>Google Sheet ID</label><input id="cfgSheet" placeholder="Sheet URL-ல் /d/ க்கு பின் உள்ள ID"></div>
+        <div class="fg"><label>Drive Main Folder ID (விருப்பம்)</label><input id="cfgDrive" placeholder="Drive folder ID"></div>
+        <div class="fg"><label>EB விலை ₹/யூனிட்</label><input type="number" id="cfgEBRate" value="6"></div>
+        <div class="br end">
+          <button class="btn grn" onclick="saveSetup()">💾 சேமி & புதுப்பி</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">📋 Sheet அமைப்பு</div>
+          <button class="btn sm pri" onclick="initHeaders()">🗂️ தலைப்புகள் உருவாக்கு</button>
+        </div>
+        <div class="al info mb8"><span>ℹ️</span> உங்கள் Sheet-ல் <strong>Records, Tenants, EB</strong> என 3 tabs வேண்டும்.</div>
+        <div class="fs12 fw7 mb4">Records (Row 1):</div>
+        <code>House | Month | Rent | Water | EB | Other | PrevBal | Total | PayStatus | Received | Balance | Note | Timestamp</code>
+        <div class="fs12 fw7 mt8 mb4">Tenants (Row 1):</div>
+        <code>House | Name | Phone | DefaultRent | Water | Maint | Members | ProofType | ProofNumber | MoveInDate | DriveFileId</code>
+        <div class="fs12 fw7 mt8 mb4">EB (Row 1):</div>
+        <code>House | Month | StartReading | EndReading | Units | Rate | Amount | Timestamp</code>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">🏠 குடியிருப்பாளர் பட்டியல்</div></div>
+        <div class="tw">
+          <table>
+            <tr><th>#</th><th>வீடு</th><th>பெயர்</th></tr>
+            ${[{n:1,nm:'கலைசெல்வி'},{n:2,nm:'சங்கீதா'},{n:3,nm:'மகராசி'},{n:4,nm:'சுதா'},{n:5,nm:'பாரிதா'},
+               {n:6,nm:'அன்பு'},{n:7,nm:'சோழன்'},{n:8,nm:'அசீப்'},{n:9,nm:'Akila'},{n:10,nm:'கோகிலா'},
+               {n:11,nm:'பிரபு'},{n:12,nm:'சுவாமிநாதன்'},{n:13,nm:'லட்சுமிகாந்தன்'},{n:14,nm:'பாட்டி'},{n:15,nm:'தீபக்'}]
+              .map(h=>`<tr><td>${h.n}</td><td>வீடு ${h.n}</td><td>${h.nm}</td></tr>`).join('')}
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TENANT MODAL -->
+<div class="overlay" id="tModal">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-hd">
+      <div class="modal-title" id="tModalTitle">குடியிருப்பாளர்</div>
+      <button class="modal-x" onclick="closeTModal()">✕</button>
+    </div>
+    <div id="tModalBody"></div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="overlay" id="rcpModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-hd">
+      <div class="modal-title">🧾 ரசீது</div>
+      <button class="modal-x" onclick="closeRcpModal()">✕</button>
+    </div>
+    <div id="rcpModalBody"></div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CKRY = 'vdgPro2';
+let C = { clientId:'', sheetId:'', driveFolderId:'', ebRate:6, token:'', userName:'', userEmail:'', userPhoto:'' };
+
+const HOUSES = [
+  {n:1,nm:'கலைசெல்வி'},{n:2,nm:'சங்கீதா'},{n:3,nm:'மகராசி'},{n:4,nm:'சுதா'},{n:5,nm:'பாரிதா'},
+  {n:6,nm:'அன்பு'},{n:7,nm:'சோழன்'},{n:8,nm:'அசீப்'},{n:9,nm:'Akila'},{n:10,nm:'கோகிலா'},
+  {n:11,nm:'பிரபு'},{n:12,nm:'சுவாமிநாதன்'},{n:13,nm:'லட்சுமிகாந்தன்'},{n:14,nm:'பாட்டி'},{n:15,nm:'தீபக்'}
+];
+const MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
+const PROOFS = ['Aadhaar','Passport','Voter ID','Driving Licence','Other'];
+
+let payStatus = '';
+let tenCache = [];
+let recCache = [];
+
+// ============================================================
+// UTILS
+// ============================================================
+const g = id => document.getElementById(id);
+const gv = id => { const e = g(id); return e ? e.value.trim() : ''; };
+const sv = (id, v) => { const e = g(id); if(e) e.value = v ?? ''; };
+const fmt = n => '₹' + (parseFloat(n)||0).toLocaleString('en-IN');
+const fmtN = n => (parseFloat(n)||0).toLocaleString('en-IN');
+const todayYM = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); };
+const thisYear = () => new Date().getFullYear();
+const prevYM = ym => { const d=new Date(ym+'-01'); d.setMonth(d.getMonth()-1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); };
+const mlabel = ym => { if(!ym) return ''; const [y,m]=ym.split('-'); return MONTHS[parseInt(m)-1]+' '+y; };
+const hlabel = n => { const h=HOUSES.find(x=>x.n===parseInt(n)); return h?`வீடு ${n} — ${h.nm}`:`வீடு ${n}`; };
+
+function toast(msg, type='', dur=3200) {
+  const w=g('toast-wrap'), t=document.createElement('div');
+  t.className='toast'+(type?' '+type:''); t.textContent=msg; w.appendChild(t);
+  setTimeout(()=>{ t.style.animation='tOut .25s ease forwards'; setTimeout(()=>t.remove(),260); }, dur);
+}
+
+// ============================================================
+// CONFIG LOAD/SAVE
+// ============================================================
+function loadCfg() {
+  try { const s=localStorage.getItem(CKRY); if(s) Object.assign(C, JSON.parse(s)); } catch(e){}
+}
+function saveCfg() { localStorage.setItem(CKRY, JSON.stringify(C)); }
+function fillCfgForm() {
+  sv('cfgClient', C.clientId); sv('cfgSheet', C.sheetId);
+  sv('cfgDrive', C.driveFolderId); sv('cfgEBRate', C.ebRate||6);
+}
+function saveSetup() {
+  C.clientId=gv('cfgClient'); C.sheetId=gv('cfgSheet');
+  C.driveFolderId=gv('cfgDrive'); C.ebRate=parseFloat(gv('cfgEBRate'))||6;
+  saveCfg(); toast('✅ சேமிக்கப்பட்டது! புதுப்பிக்கிறது...','ok');
+  setTimeout(()=>location.reload(),1400);
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function handleLogin() {
+  if(!C.clientId) {
+    // Demo mode
+    C.token='DEMO'; C.userName='ஆடிட்டர்'; C.userEmail='demo@vaadagai.pro'; C.userPhoto='';
+    saveCfg(); showApp();
+    toast('⚠️ டெமோ மோட் — அமைவு பக்கத்தில் Google API கீ சேர்க்கவும்','warn',5000);
+    return;
+  }
+  const p = new URLSearchParams({
+    client_id: C.clientId,
+    redirect_uri: location.origin+location.pathname,
+    response_type:'token',
+    scope:'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+    include_granted_scopes:'true', state:'auth'
+  });
+  location.href = 'https://accounts.google.com/o/oauth2/v2/auth?'+p;
+}
+
+function handleCallback() {
+  const h=location.hash.slice(1), p=new URLSearchParams(h), tok=p.get('access_token');
+  if(!tok) return false;
+  C.token=tok; saveCfg(); history.replaceState(null,'',location.pathname);
+  fetchProfile().then(showApp);
+  return true;
+}
+
+async function fetchProfile() {
+  if(C.token==='DEMO') return;
+  try {
+    const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+C.token}});
+    const d=await r.json();
+    C.userName=d.name||'பயனர்'; C.userEmail=d.email||''; C.userPhoto=d.picture||'';
+    saveCfg();
+  } catch(e){}
+}
+
+function showApp() {
+  g('loginScreen').style.display='none'; g('app').style.display='block';
+  g('sbName').textContent=C.userName||'பயனர்';
+  g('sbAvatar').src=C.userPhoto||'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%231a1a2e"/><text x="50%25" y="60%25" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="14">👤</text></svg>';
+  fillCfgForm(); populateSels(); setDefMonths(); nav('dashboard');
+}
+
+function handleLogout() {
+  if(!confirm('வெளியேற?')) return;
+  C.token=''; saveCfg(); location.reload();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const PAGE_TITLES = {
+  dashboard:'டாஷ்போர்டு', record:'வாடகை பதிவு', bulk:'மொத்த பதிவு',
+  ledger:'பதிவேடு', receipt:'ரசீது', eb:'EB டிராக்கர்',
+  tenants:'குடியிருப்பாளர்', report:'அறிக்கை', whatsapp:'WhatsApp நினைவூட்டல்', setup:'அமைவு'
+};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.snb, .mnb').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  const el=g('page-'+page); if(el) el.classList.add('active');
+  g('pageTitle').textContent=PAGE_TITLES[page]||page;
+  g('topbarActions').innerHTML='';
+  closeMob();
+  switch(page) {
+    case 'dashboard': loadDash(); break;
+    case 'tenants': loadTenants(); break;
+    case 'ledger': loadLedger(); break;
+    case 'report': loadReport(); break;
+  }
+}
+
+function toggleMob() {
+  const s=g('sidebar'); s.classList.toggle('open');
+  g('mobOverlay').style.display=s.classList.contains('open')?'block':'none';
+}
+function closeMob() {
+  g('sidebar').classList.remove('open'); g('mobOverlay').style.display='none';
+}
+
+// ============================================================
+// SELECTS + DEFAULTS
+// ============================================================
+function populateSels() {
+  ['recHouse','rcpHouse','ebHouse'].forEach(id => {
+    const s=g(id); if(!s) return;
+    const cur=s.value; s.innerHTML='<option value="">-- தேர்ந்தெடு --</option>';
+    HOUSES.forEach(h=>{ const o=document.createElement('option'); o.value=h.n; o.textContent=`வீடு ${h.n} — ${h.nm}`; s.appendChild(o); });
+    if(cur) s.value=cur;
+  });
+  const ls=g('ledHouse'); if(ls){
+    ls.innerHTML='<option value="">எல்லா வீடுகளும்</option>';
+    HOUSES.forEach(h=>{ const o=document.createElement('option'); o.value=h.n; o.textContent=`வீடு ${h.n} — ${h.nm}`; ls.appendChild(o); });
+  }
+}
+
+function setDefMonths() {
+  const ym=todayYM(), yr=thisYear();
+  ['recMonth','rcpMonth','bulkMonth','waMonth','ebMonth','ledFrom','ledTo'].forEach(id=>{ const e=g(id); if(e&&!e.value) e.value=ym; });
+  ['ebYear','reportYear'].forEach(id=>{ const e=g(id); if(e&&!e.value) e.value=yr; });
+}
+
+// ============================================================
+// SHEETS API
+// ============================================================
+async function shGet(range) {
+  if(!C.sheetId) throw new Error('Sheet ID இல்லை — அமைவு பக்கம் பாருங்கள்');
+  const r=await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${C.sheetId}/values/${encodeURIComponent(range)}`,
+    {headers:{Authorization:'Bearer '+C.token}});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Sheet read error');}
+  return r.json();
+}
+
+async function shAppend(range, values) {
+  if(!C.sheetId) throw new Error('Sheet ID இல்லை');
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${C.sheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const r=await fetch(url,{method:'POST',headers:{Authorization:'Bearer '+C.token,'Content-Type':'application/json'},body:JSON.stringify({values})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Write error');}
+  return r.json();
+}
+
+async function shUpdate(range, values) {
+  if(!C.sheetId) throw new Error('Sheet ID இல்லை');
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${C.sheetId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const r=await fetch(url,{method:'PUT',headers:{Authorization:'Bearer '+C.token,'Content-Type':'application/json'},body:JSON.stringify({values})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Update error');}
+  return r.json();
+}
+
+// ============================================================
+// DATA LOADERS
+// ============================================================
+async function getRecords() {
+  if(C.token==='DEMO') return demoRecords();
+  try {
+    const d=await shGet('Records!A2:M');
+    return (d.values||[]).filter(r=>r[0]).map(r=>({
+      house:r[0], month:r[1], rent:+r[2]||0, water:+r[3]||0, eb:+r[4]||0, other:+r[5]||0,
+      prevBal:+r[6]||0, total:+r[7]||0, payStatus:r[8]||'none',
+      received:+r[9]||0, balance:+r[10]||0, note:r[11]||'', ts:r[12]||''
+    }));
+  } catch(e) { toast('⚠️ தரவு: '+e.message,'err'); return []; }
+}
+
+async function getTenants() {
+  if(C.token==='DEMO') return HOUSES.map(h=>({
+    house:h.n, name:h.nm, phone:'98765'+String(43200+h.n), defaultRent:5000+(h.n*50),
+    water:200, maint:0, members:2, proofType:'Aadhaar', proofNumber:'XXXX-'+h.n,
+    moveInDate:'2024-01-01', driveFileId:''
+  }));
+  try {
+    const d=await shGet('Tenants!A2:K');
+    const rows=(d.values||[]).filter(r=>r[0]);
+    if(rows.length===0) return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:200,maint:0,members:1,proofType:'Aadhaar',proofNumber:'',moveInDate:'',driveFileId:''}));
+    return rows.map(r=>({house:+r[0], name:r[1]||'', phone:r[2]||'', defaultRent:+r[3]||5000,
+      water:+r[4]||0, maint:+r[5]||0, members:+r[6]||1, proofType:r[7]||'Aadhaar',
+      proofNumber:r[8]||'', moveInDate:r[9]||'', driveFileId:r[10]||''}));
+  } catch(e) { toast('⚠️ குடியிருப்பு தரவு: '+e.message,'err'); return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:0,maint:0,members:1,proofType:'',proofNumber:'',moveInDate:'',driveFileId:''})); }
+}
+
+async function getEB() {
+  if(C.token==='DEMO') return [];
+  try {
+    const d=await shGet('EB!A2:H');
+    return (d.values||[]).filter(r=>r[0]).map(r=>({house:+r[0],month:r[1],start:+r[2]||0,end:+r[3]||0,units:+r[4]||0,rate:+r[5]||0,amount:+r[6]||0,ts:r[7]||''}));
+  } catch(e) { toast('⚠️ EB தரவு: '+e.message,'err'); return []; }
+}
+
+function demoRecords() {
+  const sts=['full','full','partial','none','full','full'];
+  const res=[];
+  const months=['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06'];
+  HOUSES.forEach(h=>{
+    months.forEach((m,i)=>{
+      const rent=5000+(h.n*50), water=200, total=rent+water;
+      const st=sts[i%sts.length];
+      const rec=st==='full'?total:st==='partial'?Math.floor(total*.6):0;
+      res.push({house:h.n,month:m,rent,water,eb:0,other:0,prevBal:0,total,payStatus:st,received:rec,balance:total-rec,note:'',ts:''});
+    });
+  });
+  return res;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function loadDash() {
+  g('dashWrap').innerHTML='<div class="loading"><div class="spin"></div>டாஷ்போர்டு ஏற்றுகிறது...</div>';
+  const [recs, tens] = await Promise.all([getRecords(), getTenants()]);
+  recCache=recs; tenCache=tens;
+  const ym=todayYM();
+  const mRecs=recs.filter(r=>r.month===ym);
+  const billed=mRecs.reduce((s,r)=>s+r.total,0);
+  const coll=mRecs.reduce((s,r)=>s+r.received,0);
+  const bal=mRecs.reduce((s,r)=>s+r.balance,0);
+  const paid=mRecs.filter(r=>r.payStatus==='full').length;
+  const part=mRecs.filter(r=>r.payStatus==='partial').length;
+  const due=HOUSES.filter(h=>{ const r=mRecs.find(x=>+x.house===h.n); return !r||r.payStatus!=='full'; });
+  const eff=billed>0?Math.round(coll/billed*100):0;
+  g('waBadge').textContent=due.length;
+
+  g('dashWrap').innerHTML=`
+    <div class="al info mb12"><span>📅</span> நடப்பு மாதம்: <strong>${mlabel(ym)}</strong> &nbsp;·&nbsp; ${C.token==='DEMO'?'<span style="color:#d97706">⚠️ டெமோ மோட்</span>':'Google Sheets இணைக்கப்பட்டது ✅'}</div>
+
+    <div class="mg">
+      <div class="mc blue"><div class="ml">மொத்த வாடகை</div><div class="mv blue">${fmt(billed)}</div><div class="ms">${mlabel(ym)}</div></div>
+      <div class="mc green"><div class="ml">வசூல்</div><div class="mv green">${fmt(coll)}</div><div class="ms">${paid} முழு · ${part} பகுதி</div></div>
+      <div class="mc red"><div class="ml">நிலுவை</div><div class="mv red">${fmt(bal)}</div><div class="ms">${due.length} வீடுகள்</div></div>
+      <div class="mc ${eff>=80?'green':eff>=50?'amber':'red'}"><div class="ml">வசூல் திறன்</div><div class="mv ${eff>=80?'green':eff>=50?'amber':'red'}">${eff}%</div><div class="ms">&nbsp;</div></div>
+      <div class="mc purple"><div class="ml">வீடுகள்</div><div class="mv purple">15</div><div class="ms">மொத்தம்</div></div>
+    </div>
+
+    <div class="card mb12">
+      <div class="card-hd"><div class="card-hd-left">📊 வசூல் நிலை — ${mlabel(ym)}</div><span class="cbadge">${eff}%</span></div>
+      <div class="pbar-wrap" style="height:10px;margin-bottom:8px"><div class="pbar ${eff>=80?'':eff>=50?'am':'rd'}" style="width:${eff}%"></div></div>
+      <div class="flex" style="gap:16px">
+        <span class="fs12 tg">✅ முழு: <strong>${paid}</strong></span>
+        <span class="fs12 ta">⚡ பகுதி: <strong>${part}</strong></span>
+        <span class="fs12 tr2">❌ நிலுவை: <strong>${due.length}</strong></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">🏠 வீடுகளின் நிலை</div></div>
+      <div class="hgrid">
+        ${HOUSES.map(h=>{
+          const r=mRecs.find(x=>+x.house===h.n);
+          const st=r?r.payStatus:'none';
+          const cls=st==='full'?'st-paid':st==='partial'?'st-partial':'st-unpaid';
+          const chip=st==='full'?'paid':st==='partial'?'partial':'unpaid';
+          const lbl=st==='full'?'✅ முழு':st==='partial'?'⚡ பகுதி':'❌ நிலுவை';
+          const col=st==='full'?'tg':st==='partial'?'ta':'tr2';
+          return `<div class="hcard ${cls}" onclick="nav('record')">
+            <div class="hn">வீடு ${h.n}</div>
+            <div class="hname">${h.nm}</div>
+            <div class="hamt ${col}">${fmt(r?r.total:5000)}</div>
+            <div class="hst"><span class="chip sm ${chip}">${lbl}</span></div>
+            ${r&&r.balance>0?`<div class="fs11 tr2 mt4">நிலுவை: ${fmt(r.balance)}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    ${due.length>0?`
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">⚠️ நிலுவை வீடுகள்</div><span class="cbadge tr2">${due.length}</span></div>
+      <div class="tw"><table>
+        <tr><th>வீடு</th><th>பெயர்</th><th>நிலை</th><th>நிலுவை</th><th></th></tr>
+        ${due.map(h=>{
+          const r=mRecs.find(x=>+x.house===h.n);
+          const st=r?r.payStatus:'none'; const t=tens.find(x=>+x.house===h.n)||{};
+          return `<tr>
+            <td>வீடு ${h.n}</td><td>${h.nm}</td>
+            <td><span class="chip sm ${st==='partial'?'partial':'unpaid'}">${st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span></td>
+            <td class="tr2 fw7">${r?fmt(r.balance):'—'}</td>
+            <td>${t.phone?`<a href="https://wa.me/91${t.phone}" target="_blank" style="color:#25d366;font-size:18px">💬</a>`:''}</td>
+          </tr>`;
+        }).join('')}
+      </table></div>
+    </div>`:''}
+  `;
+}
+
+// ============================================================
+// RECORD ENTRY
+// ============================================================
+function onRecHouseChange() {
+  const h=gv('recHouse');
+  if(!h){ g('recAlert').className='hidden'; g('recForm').classList.add('hidden'); return; }
+  g('recForm').classList.remove('hidden');
+  const hobj=HOUSES.find(x=>x.n===+h)||{};
+  g('recAlert').className='al info'; g('recAlert').innerHTML=`<span>ℹ️</span> <strong>${hobj.nm}</strong> — வீடு ${h}`;
+  const t=tenCache.find(x=>+x.house===+h)||{};
+  if(t.defaultRent) sv('recRent',t.defaultRent);
+  if(t.water) sv('recWater',t.water);
+  calcRec(); onRecMonthChange();
+}
+
+async function onRecMonthChange() {
+  const h=gv('recHouse'), m=gv('recMonth');
+  if(!h||!m) return;
+  const pm=prevYM(m);
+  const recs=recCache.length?recCache:await getRecords();
+  recCache=recs;
+  const prev=recs.find(r=>+r.house===+h&&r.month===pm);
+  sv('recPrev', prev?prev.balance:0);
+  const exist=recs.find(r=>+r.house===+h&&r.month===m);
+  if(exist){
+    toast('⚠️ இந்த மாதம் ஏற்கனவே பதிவு உள்ளது!','warn');
+    sv('recRent',exist.rent); sv('recWater',exist.water); sv('recEB',exist.eb||0);
+    sv('recOther',exist.other||0); sv('recPrev',exist.prevBal||0);
+    setPayStatus(exist.payStatus||'none'); sv('recRecv',exist.received||0);
+  }
+  calcRec();
+}
+
+function calcRec() {
+  const r=+gv('recRent')||0, w=+gv('recWater')||0, e=+gv('recEB')||0, o=+gv('recOther')||0, p=+gv('recPrev')||0;
+  g('recTotalDisplay').textContent=fmt(r+w+e+o+p);
+  calcBalance();
+}
+
+function setPayStatus(st) {
+  payStatus=st;
+  ['full','partial','none'].forEach(s=>{ const c=g('pc-'+s); c.className='pay-chip'+(s===st?' s'+s[0]:''); });
+  const r=+gv('recRent')||0, w=+gv('recWater')||0, e=+gv('recEB')||0, o=+gv('recOther')||0, p=+gv('recPrev')||0;
+  const tot=r+w+e+o+p;
+  const rd=g('recRecvDiv');
+  if(st==='full'){ sv('recRecv',tot); rd.classList.add('hidden'); }
+  else if(st==='partial'){ rd.classList.remove('hidden'); }
+  else { sv('recRecv',0); rd.classList.add('hidden'); }
+  calcBalance();
+}
+
+function calcBalance() {
+  const r=+gv('recRent')||0, w=+gv('recWater')||0, e=+gv('recEB')||0, o=+gv('recOther')||0, p=+gv('recPrev')||0;
+  const tot=r+w+e+o+p;
+  const rec=payStatus==='full'?tot:(payStatus==='none'?0:+gv('recRecv')||0);
+  sv('recPaid',rec); sv('recBal',tot-rec);
+  g('recTotalDisplay').textContent=fmt(tot);
+}
+
+function clearRec() {
+  ['recHouse','recRent','recWater','recEB','recOther','recPrev','recRecv','recPaid','recBal','recNote'].forEach(id=>sv(id,''));
+  payStatus='';
+  ['full','partial','none'].forEach(s=>g('pc-'+s).className='pay-chip');
+  g('recForm').classList.add('hidden'); g('recAlert').className='hidden';
+  g('recRecvDiv').classList.add('hidden'); sv('recMonth',todayYM());
+}
+
+async function saveRecord() {
+  const h=gv('recHouse'), m=gv('recMonth');
+  if(!h||!m){ toast('வீடு மற்றும் மாதம் தேர்ந்தெடுக்கவும்!','err'); return; }
+  if(!payStatus){ toast('கட்டண நிலை தேர்ந்தெடுக்கவும்!','err'); return; }
+  const r=+gv('recRent')||0, w=+gv('recWater')||0, e=+gv('recEB')||0, o=+gv('recOther')||0, p=+gv('recPrev')||0;
+  const tot=r+w+e+o+p;
+  const rec=payStatus==='full'?tot:(payStatus==='none'?0:+gv('recRecv')||0);
+  const row=[h,m,r,w,e,o,p,tot,payStatus,rec,tot-rec,gv('recNote'),new Date().toISOString()];
+  if(C.token==='DEMO'){ toast('✅ (டெமோ) பதிவு சேமிக்கப்பட்டது!','ok'); clearRec(); return; }
+  try { await shAppend('Records!A:M',[row]); recCache=[]; toast('✅ பதிவு சேமிக்கப்பட்டது!','ok'); clearRec(); }
+  catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ============================================================
+// BULK
+// ============================================================
+async function loadBulk() {
+  const m=gv('bulkMonth'); if(!m){ toast('மாதம் தேர்ந்தெடுக்கவும்!','err'); return; }
+  g('bulkWrap').innerHTML='<div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div>';
+  const [recs,tens]=await Promise.all([getRecords(),getTenants()]);
+  recCache=recs; tenCache=tens;
+  g('bulkWrap').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">⚡ ${mlabel(m)} — மொத்த பதிவு</div></div>
+      <div style="overflow-x:auto">
+        <table class="btable" id="btbl">
+          <thead><tr><th>வீடு</th><th>பெயர்</th><th>வாடகை</th><th>தண்ணீர்</th><th>EB</th><th>முந்தைய</th><th>மொத்தம்</th><th>நிலை</th><th>வசூல்</th><th>இருப்பு</th></tr></thead>
+          <tbody>
+            ${HOUSES.map(h=>{
+              const t=tens.find(x=>+x.house===h.n)||{};
+              const ex=recs.find(r=>+r.house===h.n&&r.month===m)||{};
+              const pm=prevYM(m); const pr=recs.find(r=>+r.house===h.n&&r.month===pm)||{};
+              const rent=ex.rent||t.defaultRent||5000;
+              const water=ex.water||t.water||0;
+              const eb=ex.eb||0; const prev=ex.prevBal||(pr.balance||0);
+              const tot=+rent+ +water+ +eb+ +prev;
+              const st=ex.payStatus||'none';
+              const recv=ex.received||0;
+              return `<tr id="br${h.n}">
+                <td class="fw7">வீடு ${h.n}</td><td>${h.nm}</td>
+                <td><input type="number" id="br_r${h.n}" value="${rent}" oninput="bCalc(${h.n})"></td>
+                <td><input type="number" id="br_w${h.n}" value="${water}" oninput="bCalc(${h.n})"></td>
+                <td><input type="number" id="br_e${h.n}" value="${eb}" oninput="bCalc(${h.n})"></td>
+                <td class="ro"><input type="number" id="br_p${h.n}" value="${prev}" readonly></td>
+                <td class="ro"><input type="number" id="br_t${h.n}" value="${tot}" readonly></td>
+                <td><select id="br_s${h.n}" onchange="bCalc(${h.n})">
+                  <option value="full" ${st==='full'?'selected':''}>✅ முழு</option>
+                  <option value="partial" ${st==='partial'?'selected':''}>⚡ பகுதி</option>
+                  <option value="none" ${st==='none'?'selected':''}>❌ இல்லை</option>
+                </select></td>
+                <td><input type="number" id="br_recv${h.n}" value="${recv}" oninput="bCalc(${h.n})"></td>
+                <td class="ro"><input type="number" id="br_b${h.n}" value="${tot-recv}" readonly></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="br end mt12">
+        <button class="btn grn" onclick="saveBulk()">💾 அனைத்தும் சேமி (15 வீடுகள்)</button>
+      </div>
+    </div>
+  `;
+  HOUSES.forEach(h=>bCalc(h.n));
+}
+
+function bCalc(n) {
+  const r=+g(`br_r${n}`)?.value||0, w=+g(`br_w${n}`)?.value||0;
+  const e=+g(`br_e${n}`)?.value||0, p=+g(`br_p${n}`)?.value||0;
+  const tot=r+w+e+p; const st=g(`br_s${n}`)?.value||'none';
+  const ri=g(`br_recv${n}`);
+  let recv=+ri?.value||0;
+  if(st==='full'){ recv=tot; if(ri) ri.value=tot; }
+  if(st==='none'){ recv=0; if(ri) ri.value=0; }
+  const ti=g(`br_t${n}`), bi=g(`br_b${n}`);
+  if(ti) ti.value=tot; if(bi) bi.value=tot-recv;
+}
+
+async function saveBulk() {
+  const m=gv('bulkMonth'); if(!m){ toast('மாதம்!','err'); return; }
+  const rows=HOUSES.map(h=>{
+    const r=+g(`br_r${h.n}`)?.value||0, w=+g(`br_w${h.n}`)?.value||0;
+    const e=+g(`br_e${h.n}`)?.value||0, p=+g(`br_p${h.n}`)?.value||0;
+    const tot=r+w+e+p; const st=g(`br_s${h.n}`)?.value||'none';
+    const recv=+g(`br_recv${h.n}`)?.value||0;
+    return [h.n,m,r,w,e,0,p,tot,st,recv,tot-recv,'மொத்த பதிவு',new Date().toISOString()];
+  });
+  if(C.token==='DEMO'){ toast('✅ (டெமோ) 15 வீடுகள் சேமிக்கப்பட்டன!','ok'); return; }
+  try { await shAppend('Records!A:M',rows); recCache=[]; toast('✅ 15 வீடுகளும் சேமிக்கப்பட்டன!','ok'); }
+  catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ============================================================
+// LEDGER
+// ============================================================
+async function loadLedger() {
+  const h=gv('ledHouse'), f=gv('ledFrom'), t=gv('ledTo');
+  g('ledWrap').innerHTML='<div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div>';
+  let recs=await getRecords();
+  if(h) recs=recs.filter(r=>+r.house===+h);
+  if(f) recs=recs.filter(r=>r.month>=f);
+  if(t) recs=recs.filter(r=>r.month<=t);
+  recs.sort((a,b)=>a.month.localeCompare(b.month)||+a.house-+b.house);
+  if(!recs.length){ g('ledWrap').innerHTML='<div class="empty"><div class="ei">📭</div><p>பதிவுகள் இல்லை</p></div>'; return; }
+  const tb=recs.reduce((s,r)=>s+r.total,0), tc=recs.reduce((s,r)=>s+r.received,0), tbl=recs.reduce((s,r)=>s+r.balance,0);
+  g('ledWrap').innerHTML=`
+    <div class="mg" style="margin-bottom:12px">
+      <div class="mc blue"><div class="ml">மொத்தம்</div><div class="mv blue">${fmt(tb)}</div></div>
+      <div class="mc green"><div class="ml">வசூல்</div><div class="mv green">${fmt(tc)}</div></div>
+      <div class="mc red"><div class="ml">நிலுவை</div><div class="mv red">${fmt(tbl)}</div></div>
+    </div>
+    <div class="card" id="ledTbl">
+      <div class="tw"><table>
+        <tr><th>வீடு</th><th>மாதம்</th><th>வாடகை</th><th>தண்ணீர்</th><th>EB</th><th>முந்தைய</th><th>மொத்தம்</th><th>நிலை</th><th>வசூல்</th><th>நிலுவை</th></tr>
+        ${recs.map(r=>`<tr>
+          <td>${hlabel(r.house)}</td><td>${mlabel(r.month)}</td>
+          <td class="tr">${fmt(r.rent)}</td><td class="tr">${fmt(r.water)}</td><td class="tr">${fmt(r.eb)}</td>
+          <td class="tr">${fmt(r.prevBal)}</td><td class="tr fw7">${fmt(r.total)}</td>
+          <td><span class="chip sm ${r.payStatus==='full'?'paid':r.payStatus==='partial'?'partial':'unpaid'}">${r.payStatus==='full'?'✅':r.payStatus==='partial'?'⚡':'❌'} ${r.payStatus==='full'?'முழு':r.payStatus==='partial'?'பகுதி':'இல்லை'}</span></td>
+          <td class="tr tg">${fmt(r.received)}</td><td class="tr tr2">${fmt(r.balance)}</td>
+        </tr>`).join('')}
+        <tr class="tfoot"><td colspan="6">மொத்தம்</td><td class="tr">${fmt(tb)}</td><td></td><td class="tr tg">${fmt(tc)}</td><td class="tr tr2">${fmt(tbl)}</td></tr>
+      </table></div>
+    </div>
+  `;
+}
+
+function ledCSV() {
+  const t=g('ledTbl'); if(!t){ toast('முதலில் தேடவும்','warn'); return; }
+  const rows=[['வீடு','மாதம்','வாடகை','தண்ணீர்','EB','முந்தைய','மொத்தம்','நிலை','வசூல்','நிலுவை']];
+  t.querySelectorAll('tbody tr:not(.tfoot)').forEach(tr=>rows.push([...tr.querySelectorAll('td')].map(td=>td.textContent.trim())));
+  dlCSV(rows,'ledger_'+todayYM()+'.csv');
+}
+
+async function ledImg() {
+  const el=g('ledTbl'); if(!el){ toast('முதலில் தேடவும்','warn'); return; }
+  toast('படம் தயாரிக்கிறது...','');
+  const c=await html2canvas(el,{scale:2,backgroundColor:'#fff'});
+  const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='ledger_'+todayYM()+'.png'; a.click();
+}
+
+function dlCSV(rows,name) {
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download=name; a.click();
+}
+
+// ============================================================
+// RECEIPT
+// ============================================================
+async function loadReceipt() {
+  const h=gv('rcpHouse'), m=gv('rcpMonth');
+  if(!h||!m){ toast('வீடு மற்றும் மாதம்!','err'); return; }
+  const recs=await getRecords(); const r=recs.find(x=>+x.house===+h&&x.month===m);
+  if(!r){ toast('இந்த மாதத்தில் பதிவு இல்லை','warn'); g('rcpWrap').innerHTML=''; return; }
+  const hobj=HOUSES.find(x=>x.n===+h)||{};
+  g('rcpModalBody').innerHTML=buildRcp(r,hobj);
+  g('rcpModal').classList.add('open');
+}
+
+async function bulkReceipt() {
+  const m=gv('rcpMonth'); if(!m){ toast('மாதம்!','err'); return; }
+  const recs=await getRecords(); const mRecs=recs.filter(x=>x.month===m);
+  if(!mRecs.length){ toast('இந்த மாதத்தில் பதிவுகள் இல்லை','warn'); return; }
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Bulk Receipts '+m+'</title><style>body{font-family:monospace;padding:16px}.rp{page-break-after:always;max-width:340px;margin:0 auto 32px;border:1px solid #e2e8f0;padding:20px;border-radius:8px}.rh{text-align:center;border-bottom:2px dashed #e2e8f0;padding-bottom:10px;margin-bottom:10px}.rr{display:flex;justify-content:space-between;padding:3px 0;font-size:13px}.rb{font-weight:700;border-top:1px solid #e2e8f0;padding-top:7px;margin-top:4px}.rt{font-size:16px;font-weight:900;border-top:3px solid #1a1a2e;padding-top:8px;margin-top:4px}.rf{text-align:center;border-top:2px dashed #e2e8f0;padding-top:8px;margin-top:10px;font-size:10px;color:#94a3b8}@media print{.rp{page-break-after:always}}</style></head><body>');
+  mRecs.forEach(r=>{
+    const h=HOUSES.find(x=>x.n===+r.house)||{nm:'—'};
+    w.document.write(`<div class="rp"><div class="rh"><h2>🏠 வாடகை ரசீது</h2><p>வீடு ${r.house} — ${h.nm}</p><p>${mlabel(r.month)}</p></div>
+      <div class="rr"><span>வாடகை</span><span>${fmt(r.rent)}</span></div>
+      ${r.water>0?`<div class="rr"><span>தண்ணீர்</span><span>${fmt(r.water)}</span></div>`:''}
+      ${r.eb>0?`<div class="rr"><span>மின்சாரம்</span><span>${fmt(r.eb)}</span></div>`:''}
+      ${r.prevBal>0?`<div class="rr"><span>முந்தைய நிலுவை</span><span>${fmt(r.prevBal)}</span></div>`:''}
+      <div class="rr rb"><span>மொத்தம்</span><span>${fmt(r.total)}</span></div>
+      <div class="rr"><span>வசூல்</span><span>${fmt(r.received)}</span></div>
+      <div class="rr rt"><span>இருப்பு</span><span>${fmt(r.balance)}</span></div>
+      <div class="rf">நன்றி! | ${new Date().toLocaleDateString('ta-IN')}</div>
+    </div>`);
+  });
+  w.document.write('</body></html>'); w.document.close(); setTimeout(()=>w.print(),400);
+}
+
+function buildRcp(r,hobj) {
+  return `
+    <div class="receipt-box" id="rcpPrint">
+      <div class="rcp-hd"><h2>🏠 வாடகை ரசீது</h2><p>வீடு ${hobj.n} — ${hobj.nm}</p><p>${mlabel(r.month)}</p></div>
+      <div class="rcp-row"><span>வாடகை</span><span>${fmt(r.rent)}</span></div>
+      ${r.water>0?`<div class="rcp-row"><span>தண்ணீர்</span><span>${fmt(r.water)}</span></div>`:''}
+      ${r.eb>0?`<div class="rcp-row"><span>மின்சாரம்</span><span>${fmt(r.eb)}</span></div>`:''}
+      ${r.other>0?`<div class="rcp-row"><span>மற்றவை</span><span>${fmt(r.other)}</span></div>`:''}
+      ${r.prevBal>0?`<div class="rcp-row"><span>முந்தைய நிலுவை</span><span>${fmt(r.prevBal)}</span></div>`:''}
+      <div class="rcp-row bold"><span>மொத்தம்</span><span>${fmt(r.total)}</span></div>
+      <div class="rcp-row"><span>வசூல்</span><span>${fmt(r.received)}</span></div>
+      <div class="rcp-row total"><span>இருப்பு</span><span>${fmt(r.balance)}</span></div>
+      <div class="rcp-ft">நன்றி! | ${new Date().toLocaleDateString('ta-IN')}</div>
+    </div>
+    <div class="br" style="justify-content:center;margin-top:14px">
+      <button class="btn" onclick="printRcp()">🖨️ அச்சு</button>
+      <button class="btn" onclick="dlRcp()">🖼️ படம்</button>
+    </div>
+  `;
+}
+
+function closeRcpModal(){ g('rcpModal').classList.remove('open'); }
+function printRcp(){
+  const el=g('rcpPrint'); const w=window.open('','','width=420,height=620');
+  w.document.write('<html><head><style>*{box-sizing:border-box}body{font-family:monospace;padding:16px;margin:0}</style></head><body>'+el.outerHTML+'</body></html>');
+  w.document.close(); setTimeout(()=>w.print(),300);
+}
+async function dlRcp(){
+  toast('படம்...',''); const c=await html2canvas(g('rcpPrint'),{scale:2,backgroundColor:'#fff'});
+  const a=document.createElement('a'); a.href=c.toDataURL(); a.download='receipt.png'; a.click();
+}
+
+// ============================================================
+// EB TRACKER
+// ============================================================
+async function loadEB() {
+  const h=gv('ebHouse'), y=gv('ebYear');
+  if(!h||!y){ toast('வீடு மற்றும் ஆண்டு!','err'); return; }
+  g('ebContent').innerHTML='<div class="loading"><div class="spin"></div></div>';
+  g('ebForm').classList.remove('hidden'); sv('ebMonth',todayYM());
+  const ebRecs=await getEB();
+  const filtered=ebRecs.filter(r=>+r.house===+h&&r.month?.startsWith(y));
+  const hobj=HOUSES.find(x=>x.n===+h)||{};
+  const months=Array.from({length:12},(_,i)=>y+'-'+String(i+1).padStart(2,'0'));
+  const maxA=Math.max(...filtered.map(r=>r.amount),1);
+
+  g('ebContent').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">💡 EB — ${hobj.nm} (${y})</div></div>
+      <div class="eb-grid">
+        ${months.map(m=>{
+          const rec=filtered.find(r=>r.month===m);
+          const mn=MONTHS[+m.split('-')[1]-1];
+          return `<div class="ebm ${rec?'has':''}" onclick="prefillEB('${m}')">
+            <div class="em-n">${mn}</div>
+            <div class="em-u">${rec?fmtN(rec.units):'—'}</div>
+            <div class="em-a">${rec?fmt(rec.amount):''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- Bar chart -->
+      <div style="display:flex;align-items:flex-end;gap:3px;height:160px;padding:0 4px;margin-bottom:6px">
+        ${months.map(m=>{
+          const rec=filtered.find(r=>r.month===m);
+          const a=rec?rec.amount:0; const hh=maxA>0?Math.round(a/maxA*140):2;
+          const mn=MONTHS[+m.split('-')[1]-1].slice(0,3);
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:100%;background:${a>0?'#3b82f6':'#e2e8f0'};border-radius:3px 3px 0 0;height:${Math.max(hh,2)}px;transition:height .4s" title="${fmt(a)}"></div>
+            <div style="font-size:8.5px;color:#94a3b8">${mn}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="tw"><table>
+        <tr><th>மாதம்</th><th>தொடக்கம்</th><th>முடிவு</th><th>யூனிட்</th><th>விலை</th><th>தொகை</th></tr>
+        ${filtered.length?filtered.map(r=>`<tr>
+          <td>${mlabel(r.month)}</td><td class="tr">${fmtN(r.start)}</td><td class="tr">${fmtN(r.end)}</td>
+          <td class="tr fw7">${fmtN(r.units)}</td><td class="tr">₹${r.rate}</td><td class="tr fw7 tb">${fmt(r.amount)}</td>
+        </tr>`).join(''):`<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px">பதிவுகள் இல்லை</td></tr>`}
+      </table></div>
+    </div>
+  `;
+}
+
+function prefillEB(m){ sv('ebMonth',m); g('ebForm').scrollIntoView({behavior:'smooth'}); }
+function calcEB(){
+  const s=+gv('ebStart')||0, e=+gv('ebEnd')||0, r=+gv('ebRate')||C.ebRate||6;
+  const u=Math.max(0,e-s); sv('ebUnits',u); sv('ebAmt',u*r);
+}
+async function saveEB(){
+  const h=gv('ebHouse'), m=gv('ebMonth'); if(!h||!m){ toast('வீடு & மாதம்!','err'); return; }
+  const s=+gv('ebStart')||0, e=+gv('ebEnd')||0, r=+gv('ebRate')||6;
+  const u=Math.max(0,e-s), a=u*r;
+  const row=[h,m,s,e,u,r,a,new Date().toISOString()];
+  if(C.token==='DEMO'){ toast('✅ (டெமோ) EB பதிவு!','ok'); return; }
+  try { await shAppend('EB!A:H',[row]); toast('✅ EB பதிவு சேமிக்கப்பட்டது!','ok'); loadEB(); }
+  catch(e){ toast('❌ '+e.message,'err'); }
+}
+function ebCSV(){
+  toast('EB CSV ஏற்றுமதி...','');
+}
+
+// ============================================================
+// TENANTS
+// ============================================================
+async function loadTenants() {
+  g('tenantWrap').innerHTML='<div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div>';
+  const [tens,recs]=await Promise.all([getTenants(),getRecords()]);
+  tenCache=tens; recCache=recs;
+  const ym=todayYM(); const mRecs=recs.filter(r=>r.month===ym);
+
+  g('tenantWrap').innerHTML=`
+    <div class="br end mb12">
+      <button class="btn blu" onclick="openTModal(null)">➕ குடியிருப்பாளர் சேர்</button>
+    </div>
+    ${HOUSES.map(h=>{
+      const t=tens.find(x=>+x.house===h.n)||{name:h.nm};
+      const hr=recs.filter(r=>+r.house===h.n);
+      const tp=hr.reduce((s,r)=>s+r.received,0);
+      const mr=mRecs.find(r=>+r.house===h.n);
+      const st=mr?mr.payStatus:'—';
+      return `<div class="tcard" onclick="openTModal(${h.n})">
+        <div class="tavatar">${h.n}</div>
+        <div class="tinfo">
+          <div class="tname">${t.name||h.nm}</div>
+          <div class="thouse">வீடு ${h.n} · ${t.proofType||'—'} · ${t.members||1} நபர்</div>
+          <div class="tmeta">
+            ${t.phone?`<span>📞 ${t.phone}</span>`:''}
+            ${t.moveInDate?`<span>📅 ${t.moveInDate}</span>`:''}
+            <span>💰 ${fmt(t.defaultRent||5000)}/மா</span>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="fs11 tg fw7 mb4">${fmt(tp)} சேகரிப்பு</div>
+          <span class="chip sm ${st==='full'?'paid':st==='partial'?'partial':st==='none'?'unpaid':'pending'}">${st==='full'?'✅ முழு':st==='partial'?'⚡ பகுதி':st==='none'?'❌ இல்லை':'—'}</span>
+          <div class="fs11 mt4" style="color:#94a3b8">${hr.length} மாதங்கள்</div>
+        </div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function openTModal(houseNum) {
+  const h=houseNum?HOUSES.find(x=>x.n===houseNum):null;
+  const t=houseNum?tenCache.find(x=>+x.house===houseNum)||{}:{};
+  g('tModalTitle').textContent=houseNum?`வீடு ${houseNum} — ${h?.nm||''}`:' புதிய குடியிருப்பாளர்';
+  g('tModalBody').innerHTML=`
+    <div class="r2">
+      <div class="fg"><label>வீடு</label><select id="tf_house">
+        ${HOUSES.map(h=>`<option value="${h.n}" ${+t.house===h.n||+houseNum===h.n?'selected':''}>${h.n} — ${h.nm}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>பெயர்</label><input id="tf_name" value="${t.name||h?.nm||''}" placeholder="பெயர்"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>கைபேசி</label><input id="tf_phone" value="${t.phone||''}" placeholder="9876543210"></div>
+      <div class="fg"><label>உறுப்பினர்கள்</label><input type="number" id="tf_members" value="${t.members||1}" min="1"></div>
+    </div>
+    <div class="r3">
+      <div class="fg"><label>வாடகை ₹</label><input type="number" id="tf_rent" value="${t.defaultRent||5000}"></div>
+      <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="tf_water" value="${t.water||200}"></div>
+      <div class="fg"><label>பராமரிப்பு ₹</label><input type="number" id="tf_maint" value="${t.maint||0}"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>சான்று வகை</label><select id="tf_ptype">
+        ${PROOFS.map(p=>`<option ${t.proofType===p?'selected':''}>${p}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>சான்று எண்</label><input id="tf_pnum" value="${t.proofNumber||''}" placeholder="XXXX-XXXX-XXXX"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>குடி வந்த தேதி</label><input type="date" id="tf_movein" value="${t.moveInDate||''}"></div>
+      <div class="fg"><label>சான்று படம் (Drive)</label><input type="file" id="tf_file" accept="image/*,.pdf">
+        ${t.driveFileId?`<div class="hint">✅ <a href="https://drive.google.com/file/d/${t.driveFileId}/view" target="_blank">திறக்க</a></div>`:'<div class="hint">JPEG / PNG / PDF</div>'}
+      </div>
+    </div>
+    <div class="br end">
+      <button class="btn" onclick="closeTModal()">ரத்து</button>
+      <button class="btn grn" onclick="saveTenant()">💾 சேமி</button>
+    </div>
+    ${houseNum?`<hr class="sep"><div class="fs12 fw7 mb8">📊 வரலாற்று புள்ளி விவரம்</div><div id="tHistory"><div class="loading" style="padding:16px"><div class="spin"></div></div></div>`:''}
+  `;
+  g('tModal').classList.add('open');
+  if(houseNum) loadTenantHistory(houseNum);
+}
+
+async function loadTenantHistory(hn) {
+  const recs=recCache.length?recCache:await getRecords();
+  const hr=recs.filter(r=>+r.house===hn).sort((a,b)=>b.month.localeCompare(a.month));
+  const tp=hr.reduce((s,r)=>s+r.received,0); const tb=hr.reduce((s,r)=>s+r.total,0);
+  g('tHistory').innerHTML=`
+    <div class="mg" style="margin-bottom:10px">
+      <div class="mc blue"><div class="ml">மொத்த மாதங்கள்</div><div class="mv blue">${hr.length}</div></div>
+      <div class="mc green"><div class="ml">மொத்த வசூல்</div><div class="mv green" style="font-size:16px">${fmt(tp)}</div></div>
+      <div class="mc red"><div class="ml">மொத்த நிலுவை</div><div class="mv red" style="font-size:16px">${fmt(tb-tp)}</div></div>
+    </div>
+    ${hr.length?`<div class="tw"><table>
+      <tr><th>மாதம்</th><th>மொத்தம்</th><th>நிலை</th><th>வசூல்</th><th>நிலுவை</th></tr>
+      ${hr.slice(0,12).map(r=>`<tr>
+        <td>${mlabel(r.month)}</td><td class="tr fw7">${fmt(r.total)}</td>
+        <td><span class="chip sm ${r.payStatus==='full'?'paid':r.payStatus==='partial'?'partial':'unpaid'}">${r.payStatus==='full'?'✅':r.payStatus==='partial'?'⚡':'❌'}</span></td>
+        <td class="tr tg">${fmt(r.received)}</td><td class="tr tr2">${fmt(r.balance)}</td>
+      </tr>`).join('')}
+    </table></div>`:'<div class="empty" style="padding:16px"><p>வரலாறு இல்லை</p></div>'}
+  `;
+}
+
+function closeTModal(){ g('tModal').classList.remove('open'); }
+
+async function saveTenant() {
+  const h=gv('tf_house'), nm=gv('tf_name');
+  if(!h||!nm){ toast('வீடு மற்றும் பெயர் கட்டாயம்!','err'); return; }
+  let dfid=''; const fi=g('tf_file');
+  if(fi?.files.length&&C.token!=='DEMO'&&C.driveFolderId) {
+    try { dfid=await uploadToDrive(fi.files[0],+h); toast('📁 Drive-ல் பதிவேற்றப்பட்டது!','ok'); }
+    catch(e){ toast('⚠️ Drive: '+e.message,'warn'); }
+  }
+  const row=[h,nm,gv('tf_phone'),gv('tf_rent')||5000,gv('tf_water')||0,gv('tf_maint')||0,gv('tf_members')||1,gv('tf_ptype'),gv('tf_pnum'),gv('tf_movein'),dfid];
+  if(C.token==='DEMO'){ toast('✅ (டெமோ) சேமிக்கப்பட்டது!','ok'); closeTModal(); return; }
+  try {
+    const ex=await shGet('Tenants!A:A'); const rows=ex.values||[];
+    const idx=rows.findIndex(r=>+r[0]===+h);
+    if(idx>0) await shUpdate(`Tenants!A${idx+1}:K${idx+1}`,[row]);
+    else await shAppend('Tenants!A:K',[row]);
+    tenCache=[]; toast('✅ குடியிருப்பாளர் சேமிக்கப்பட்டார்!','ok'); closeTModal(); loadTenants();
+  } catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ============================================================
+// DRIVE
+// ============================================================
+async function uploadToDrive(file, hn) {
+  if(!C.driveFolderId) throw new Error('Drive Folder ID இல்லை');
+  const fid=await getOrCreateFolder(hn);
+  const meta={name:`House${hn}_${Date.now()}.${file.name.split('.').pop()}`,parents:[fid]};
+  const fd=new FormData(); fd.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'})); fd.append('file',file);
+  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+    {method:'POST',headers:{Authorization:'Bearer '+C.token},body:fd});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Upload failed');}
+  return (await r.json()).id;
+}
+
+async function getOrCreateFolder(hn) {
+  const q=`name='House ${hn}' and '${C.driveFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  const r=await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`,{headers:{Authorization:'Bearer '+C.token}});
+  const d=await r.json(); if(d.files?.length) return d.files[0].id;
+  const cr=await fetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{Authorization:'Bearer '+C.token,'Content-Type':'application/json'},body:JSON.stringify({name:`House ${hn}`,mimeType:'application/vnd.google-apps.folder',parents:[C.driveFolderId]})});
+  return (await cr.json()).id;
+}
+
+// ============================================================
+// REPORT
+// ============================================================
+async function loadReport() {
+  const y=gv('reportYear')||thisYear();
+  g('reportWrap').innerHTML='<div class="loading"><div class="spin"></div>அறிக்கை தயாரிக்கிறது...</div>';
+  const [recs,tens]=await Promise.all([getRecords(),getTenants()]);
+  tenCache=tens;
+  const yr=recs.filter(r=>r.month?.startsWith(y));
+  const tb=yr.reduce((s,r)=>s+r.total,0), tc=yr.reduce((s,r)=>s+r.received,0), tbl=yr.reduce((s,r)=>s+r.balance,0);
+  const eff=tb>0?Math.round(tc/tb*100):0;
+  const months=Array.from({length:12},(_,i)=>y+'-'+String(i+1).padStart(2,'0'));
+  const mdata=months.map(m=>{const mr=yr.filter(r=>r.month===m);return{month:m,b:mr.reduce((s,r)=>s+r.total,0),c:mr.reduce((s,r)=>s+r.received,0)};});
+  const maxV=Math.max(...mdata.map(d=>d.b),1);
+
+  g('reportWrap').innerHTML=`
+    <div class="mg">
+      <div class="mc blue"><div class="ml">${y} மொத்த வாடகை</div><div class="mv blue">${fmt(tb)}</div></div>
+      <div class="mc green"><div class="ml">வசூல்</div><div class="mv green">${fmt(tc)}</div></div>
+      <div class="mc red"><div class="ml">நிலுவை</div><div class="mv red">${fmt(tbl)}</div></div>
+      <div class="mc ${eff>=80?'green':eff>=50?'amber':'red'}"><div class="ml">திறன்</div><div class="mv ${eff>=80?'green':eff>=50?'amber':'red'}">${eff}%</div></div>
+    </div>
+
+    <div class="card" id="rptPrint">
+      <div class="card-hd"><div class="card-hd-left">📊 மாதாந்திர விவரம் — ${y}</div></div>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:170px;padding:0 4px;margin-bottom:6px">
+        ${mdata.map(d=>{
+          const bh=maxV>0?Math.round(d.b/maxV*150):2, ch=maxV>0?Math.round(d.c/maxV*150):2;
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+            <div style="width:100%;display:flex;gap:1px;align-items:flex-end;height:155px">
+              <div style="flex:1;height:${Math.max(bh,2)}px;background:#dbeafe;border-radius:3px 3px 0 0"></div>
+              <div style="flex:1;height:${Math.max(ch,2)}px;background:#22c55e;border-radius:3px 3px 0 0"></div>
+            </div>
+            <div style="font-size:8.5px;color:#94a3b8">${MONTHS[+d.month.split('-')[1]-1].slice(0,3)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="flex fs11" style="gap:12px;margin-bottom:8px">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:#dbeafe;border:1px solid #3b82f6;border-radius:2px;display:inline-block"></span>வாடகை</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:10px;background:#22c55e;border-radius:2px;display:inline-block"></span>வசூல்</span>
+      </div>
+
+      <div class="tw"><table>
+        <tr><th>மாதம்</th><th>வாடகை</th><th>வசூல்</th><th>நிலுவை</th><th>திறன்</th></tr>
+        ${mdata.map(d=>{const p=d.b>0?Math.round(d.c/d.b*100):0;return `<tr>
+          <td>${mlabel(d.month)}</td><td class="tr">${fmt(d.b)}</td>
+          <td class="tr tg">${fmt(d.c)}</td><td class="tr tr2">${fmt(d.b-d.c)}</td>
+          <td class="tr"><span class="chip sm ${p>=80?'paid':p>=50?'partial':'unpaid'}">${p}%</span></td>
+        </tr>`;}).join('')}
+        <tr class="tfoot"><td>மொத்தம்</td><td class="tr">${fmt(tb)}</td><td class="tr tg">${fmt(tc)}</td><td class="tr tr2">${fmt(tbl)}</td><td class="tr"><span class="chip sm ${eff>=80?'paid':eff>=50?'partial':'unpaid'}">${eff}%</span></td></tr>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">🏠 வீடு வாரியான அறிக்கை</div></div>
+      <div class="rpt-grid">
+        ${HOUSES.map(h=>{
+          const hr=yr.filter(r=>+r.house===h.n);
+          const hb=hr.reduce((s,r)=>s+r.total,0), hc=hr.reduce((s,r)=>s+r.received,0);
+          const p=hb>0?Math.round(hc/hb*100):0;
+          const t=tens.find(x=>+x.house===h.n)||{};
+          return `<div class="rpt-card">
+            <div class="rpt-hd">
+              <div><div class="rpt-name">வீடு ${h.n} — ${h.nm}</div><div class="fs11" style="color:#94a3b8">${hr.length} மாதங்கள் · ${t.phone||'—'}</div></div>
+              <div class="rpt-pct ${p>=80?'tg':p>=50?'ta':'tr2'}">${p}%</div>
+            </div>
+            <div class="pbar-wrap"><div class="pbar ${p>=80?'':p>=50?'am':'rd'}" style="width:${p}%"></div></div>
+            <div class="flex-bet fs11 mt4">
+              <span>₹${(hb/1000).toFixed(1)}K</span>
+              <span class="tg">₹${(hc/1000).toFixed(1)}K</span>
+              <span class="tr2">₹${((hb-hc)/1000).toFixed(1)}K</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// WHATSAPP
+// ============================================================
+async function loadWA() {
+  const m=gv('waMonth'); if(!m){ toast('மாதம்!','err'); return; }
+  g('waWrap').innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const [recs,tens]=await Promise.all([getRecords(),getTenants()]);
+  const mr=recs.filter(r=>r.month===m);
+  const due=HOUSES.filter(h=>{ const r=mr.find(x=>+x.house===h.n); return !r||r.payStatus!=='full'; });
+  g('waBadge').textContent=due.length;
+  if(!due.length){ g('waWrap').innerHTML='<div class="empty"><div class="ei">🎉</div><p>அனைத்து வீடுகளும் வாடகை செலுத்தியுள்ளனர்!</p></div>'; return; }
+  g('waWrap').innerHTML=`
+    <div class="al warn mb12"><span>⚠️</span> ${mlabel(m)}-ல் <strong>${due.length}</strong> வீடுகளுக்கு நினைவூட்டல் அனுப்பவும்</div>
+    ${due.map(h=>{
+      const t=tens.find(x=>+x.house===h.n)||{name:h.nm};
+      const r=mr.find(x=>+x.house===h.n);
+      const bal=r?r.balance:(t.defaultRent||5000);
+      const st=r?r.payStatus:'none';
+      const msg=encodeURIComponent(`வணக்கம் ${t.name||h.nm} அம்மா/ஐயா,\n\nவீடு ${h.n} — ${mlabel(m)} மாத வாடகை நிலுவை: ${fmt(bal)}\n\nதயவுசெய்து விரைவில் செலுத்தவும்.\n\nநன்றி 🙏`);
+      return `<div class="wcard">
+        <div class="wcard-info">
+          <div class="wcard-name">வீடு ${h.n} — ${h.nm}</div>
+          <div class="wcard-amt">${fmt(bal)} நிலுவை</div>
+          <div style="margin-top:4px"><span class="chip sm ${st==='partial'?'partial':'unpaid'}">${st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span>${t.phone?` &nbsp;<span class="fs11" style="color:#94a3b8">📞 ${t.phone}</span>`:''}</div>
+        </div>
+        ${t.phone
+          ?`<button class="wa-btn" onclick="window.open('https://wa.me/91${t.phone}?text=${msg}','_blank')">
+              <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              அனுப்பு
+            </button>`
+          :`<button class="btn sm" onclick="navigator.clipboard.writeText(decodeURIComponent('${msg}')).then(()=>toast('✅ நகல்!','ok'))">📋 நகல்</button>`
+        }
+      </div>`;
+    }).join('')}
+  `;
+}
+
+// ============================================================
+// SETUP
+// ============================================================
+async function initHeaders() {
+  if(C.token==='DEMO'){ toast('டெமோ மோட்டில் இயங்காது','warn'); return; }
+  if(!C.sheetId){ toast('Sheet ID இல்லை!','err'); return; }
+  try {
+    await shUpdate('Records!A1:M1',[['House','Month','Rent','Water','EB','Other','PrevBal','Total','PayStatus','Received','Balance','Note','Timestamp']]);
+    await shUpdate('Tenants!A1:K1',[['House','Name','Phone','DefaultRent','Water','Maint','Members','ProofType','ProofNumber','MoveInDate','DriveFileId']]);
+    await shUpdate('EB!A1:H1',[['House','Month','StartReading','EndReading','Units','Rate','Amount','Timestamp']]);
+    for(let i=0;i<HOUSES.length;i++){
+      const h=HOUSES[i];
+      await shUpdate(`Tenants!A${i+2}:K${i+2}`,[[h.n,h.nm,'',5000,200,0,1,'Aadhaar','','','']]);
+    }
+    toast('✅ Sheet தலைப்புகள் + குடியிருப்பாளர் தரவு தயார்!','ok',5000);
+  } catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+(function boot(){
+  loadCfg();
+  if(handleCallback()) return;
+  if(C.token) showApp();
+  else g('loginScreen').style.display='flex';
+})();
+</script>
+</body>
+</html>
