@@ -1410,47 +1410,7 @@ async function loadTenants() {
   `;
 }
 
-function openTModal(houseNum) {
-  const h=houseNum?HOUSES.find(x=>x.n===houseNum):null;
-  const t=houseNum?tenCache.find(x=>+x.house===houseNum)||{}:{};
-  g('tModalTitle').textContent=houseNum?`வீடு ${houseNum} — ${h?.nm||''}`:' புதிய குடியிருப்பாளர்';
-  g('tModalBody').innerHTML=`
-    <div class="r2">
-      <div class="fg"><label>வீடு</label><select id="tf_house">
-        ${HOUSES.map(h=>`<option value="${h.n}" ${+t.house===h.n||+houseNum===h.n?'selected':''}>${h.n} — ${h.nm}</option>`).join('')}
-      </select></div>
-      <div class="fg"><label>பெயர்</label><input id="tf_name" value="${t.name||h?.nm||''}" placeholder="பெயர்"></div>
-    </div>
-    <div class="r2">
-      <div class="fg"><label>கைபேசி</label><input id="tf_phone" value="${t.phone||''}" placeholder="9876543210"></div>
-      <div class="fg"><label>உறுப்பினர்கள்</label><input type="number" id="tf_members" value="${t.members||1}" min="1"></div>
-    </div>
-    <div class="r3">
-      <div class="fg"><label>வாடகை ₹</label><input type="number" id="tf_rent" value="${t.defaultRent||5000}"></div>
-      <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="tf_water" value="${t.water||200}"></div>
-      <div class="fg"><label>பராமரிப்பு ₹</label><input type="number" id="tf_maint" value="${t.maint||0}"></div>
-    </div>
-    <div class="r2">
-      <div class="fg"><label>சான்று வகை</label><select id="tf_ptype">
-        ${PROOFS.map(p=>`<option ${t.proofType===p?'selected':''}>${p}</option>`).join('')}
-      </select></div>
-      <div class="fg"><label>சான்று எண்</label><input id="tf_pnum" value="${t.proofNumber||''}" placeholder="XXXX-XXXX-XXXX"></div>
-    </div>
-    <div class="r2">
-      <div class="fg"><label>குடி வந்த தேதி</label><input type="date" id="tf_movein" value="${t.moveInDate||''}"></div>
-      <div class="fg"><label>சான்று படம் (Drive)</label><input type="file" id="tf_file" accept="image/*,.pdf">
-        ${t.driveFileId?`<div class="hint">✅ <a href="https://drive.google.com/file/d/${t.driveFileId}/view" target="_blank">திறக்க</a></div>`:'<div class="hint">JPEG / PNG / PDF</div>'}
-      </div>
-    </div>
-    <div class="br end">
-      <button class="btn" onclick="closeTModal()">ரத்து</button>
-      <button class="btn grn" onclick="saveTenant()">💾 சேமி</button>
-    </div>
-    ${houseNum?`<hr class="sep"><div class="fs12 fw7 mb8">📊 வரலாற்று புள்ளி விவரம்</div><div id="tHistory"><div class="loading" style="padding:16px"><div class="spin"></div></div></div>`:''}
-  `;
-  g('tModal').classList.add('open');
-  if(houseNum) loadTenantHistory(houseNum);
-}
+// [v3] old openTModal removed — v3 version defined below
 
 async function loadTenantHistory(hn) {
   const recs=recCache.length?recCache:await getRecords();
@@ -1475,24 +1435,7 @@ async function loadTenantHistory(hn) {
 
 function closeTModal(){ g('tModal').classList.remove('open'); }
 
-async function saveTenant() {
-  const h=gv('tf_house'), nm=gv('tf_name');
-  if(!h||!nm){ toast('வீடு மற்றும் பெயர் கட்டாயம்!','err'); return; }
-  let dfid=''; const fi=g('tf_file');
-  if(fi?.files.length&&C.token!=='DEMO'&&C.driveFolderId) {
-    try { dfid=await uploadToDrive(fi.files[0],+h); toast('📁 Drive-ல் பதிவேற்றப்பட்டது!','ok'); }
-    catch(e){ toast('⚠️ Drive: '+e.message,'warn'); }
-  }
-  const row=[h,nm,gv('tf_phone'),gv('tf_rent')||5000,gv('tf_water')||0,gv('tf_maint')||0,gv('tf_members')||1,gv('tf_ptype'),gv('tf_pnum'),gv('tf_movein'),dfid];
-  if(C.token==='DEMO'){ toast('✅ (டெமோ) சேமிக்கப்பட்டது!','ok'); closeTModal(); return; }
-  try {
-    const ex=await shGet('Tenants!A:A'); const rows=ex.values||[];
-    const idx=rows.findIndex(r=>+r[0]===+h);
-    if(idx>0) await shUpdate(`Tenants!A${idx+1}:K${idx+1}`,[row]);
-    else await shAppend('Tenants!A:K',[row]);
-    tenCache=[]; toast('✅ குடியிருப்பாளர் சேமிக்கப்பட்டார்!','ok'); closeTModal(); loadTenants();
-  } catch(e){ toast('❌ '+e.message,'err'); }
-}
+// [v3] old saveTenant removed — v3 version defined below
 
 // ============================================================
 // DRIVE
@@ -1681,10 +1624,7 @@ function getEffectiveRent(rentHistory, tenants, houseNum, month) {
   return {rent:+t.defaultRent||5000, water:+t.water||0, maint:+t.maint||0, ebRate:+t.ebRate||6};
 }
 
-function prevYM(ym) {
-  const d=new Date(ym+'-01'); d.setMonth(d.getMonth()-1);
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-}
+// prevYM already defined above
 
 // ============================================================
 // v3: MONTHLY PAGE
