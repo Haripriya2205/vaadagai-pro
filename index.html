@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>வாடகை Pro</title>
+<title>வாடகை Pro v3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -285,6 +285,24 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
   .page{display:block!important}
   body,html{background:#fff!important}
 }
+/* v3 NEW */
+.backlog-banner{background:#fff7ed;border:1.5px solid #fed7aa;border-radius:9px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12.5px;color:#9a3412}
+.chip.inactive{background:#f1f5f9;color:#64748b}
+.hcard.st-inactive{border-color:#cbd5e1;background:#f8fafc;opacity:.75}
+.hcard .backlog-dot{position:absolute;bottom:9px;right:9px;background:#f97316;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px}
+.tcard.inactive-card{opacity:.65;background:var(--gray4)}
+.tavatar.inactive-av{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.toggle-wrap{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--gray4);border-radius:9px;border:1.5px solid var(--gray3);margin-bottom:10px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:12px;cursor:pointer;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.toggle-slider{background:var(--green)}
+.toggle input:checked+.toggle-slider::before{transform:translateX(20px)}
+.toggle-label{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.rcp-row.backlog-row{color:#9a3412;font-weight:600}
+.btable .bl-row td{background:#fff7ed!important}
+.tgray{color:var(--gray)!important}
 </style>
 </head>
 <body>
@@ -321,7 +339,7 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
     <div class="sb-nav">
       <div class="sb-sec">முதன்மை</div>
       <button class="snb active" data-page="dashboard" onclick="nav('dashboard')"><span class="ni">📊</span>டாஷ்போர்டு</button>
-      <button class="snb" data-page="record" onclick="nav('record')"><span class="ni">📝</span>வாடகை பதிவு</button>
+      <button class="snb" data-page="monthly" onclick="nav('monthly')"><span class="ni">📅</span>மாத பதிவு</button>
       <button class="snb" data-page="bulk" onclick="nav('bulk')"><span class="ni">⚡</span>மொத்த பதிவு</button>
       <div class="sb-sec">தகவல்</div>
       <button class="snb" data-page="ledger" onclick="nav('ledger')"><span class="ni">📒</span>பதிவேடு</button>
@@ -329,12 +347,13 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
       <button class="snb" data-page="eb" onclick="nav('eb')"><span class="ni">💡</span>EB டிராக்கர்</button>
       <div class="sb-sec">மேலாண்மை</div>
       <button class="snb" data-page="tenants" onclick="nav('tenants')"><span class="ni">👥</span>குடியிருப்பாளர்</button>
+      <button class="snb" data-page="renthistory" onclick="nav('renthistory')"><span class="ni">📋</span>வாடகை வரலாறு</button>
       <button class="snb" data-page="report" onclick="nav('report')"><span class="ni">📈</span>அறிக்கை</button>
       <button class="snb" data-page="whatsapp" onclick="nav('whatsapp')"><span class="ni">💬</span>WhatsApp<span class="badge" id="waBadge">0</span></button>
       <div class="sb-sec">அமைப்பு</div>
       <button class="snb" data-page="setup" onclick="nav('setup')"><span class="ni">⚙️</span>அமைவு</button>
     </div>
-    <div class="sb-footer">வாடகை Pro v2.0 · Free Tier Only</div>
+    <div class="sb-footer">வாடகை Pro v3.0 · Free Tier Only</div>
   </div>
 
   <div class="mob-overlay" id="mobOverlay" onclick="closeMob()"></div>
@@ -362,6 +381,39 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
     <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div id="dashWrap"><div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div></div>
+    </div>
+
+    <!-- MONTHLY ENTRY (v3 new) -->
+    <div class="page" id="page-monthly">
+      <div class="card">
+        <div class="card-hd"><div class="card-hd-left">📅 மாத பதிவு</div></div>
+        <div class="r2">
+          <div class="fg"><label>மாதம்</label><input type="month" id="monMonth"></div>
+          <div class="br" style="margin-top:20px">
+            <button class="btn blu" onclick="loadMonthly()">📋 ஏற்று</button>
+            <button class="btn grn" onclick="autoGenerate()">✨ Auto உருவாக்கு</button>
+          </div>
+        </div>
+        <div class="hint">Auto உருவாக்கு — அனைத்து Active வீடுகளுக்கும் இந்த மாத பதிவை தானாக உருவாக்கும்</div>
+      </div>
+      <div id="monWrap"></div>
+    </div>
+
+    <!-- RENT HISTORY (v3 new) -->
+    <div class="page" id="page-renthistory">
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-left">📋 வாடகை திருத்த வரலாறு</div>
+          <button class="btn blu sm" onclick="openRentRevModal()">➕ திருத்தம் சேர்</button>
+        </div>
+        <div class="r2">
+          <div class="fg"><label>வீடு வடிகட்டி</label>
+            <select id="rhHouse"><option value="">எல்லா வீடுகளும்</option></select>
+          </div>
+          <div style="margin-top:20px"><button class="btn" onclick="loadRentHistory()">🔍 காட்டு</button></div>
+        </div>
+      </div>
+      <div id="rhWrap"></div>
     </div>
 
     <!-- RECORD -->
@@ -536,7 +588,7 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
         <div class="setup-step"><span class="snum">1</span>console.cloud.google.com → புதிய Project "Vaadagai Pro"</div>
         <div class="setup-step"><span class="snum">2</span>Sheets API + Drive API + People API இயக்கு</div>
         <div class="setup-step"><span class="snum">3</span>OAuth 2.0 Client ID உருவாக்கு (Web App) → இந்த URL Authorized Origin-ல் சேர்</div>
-        <div class="setup-step"><span class="snum">4</span>Google Sheet 3 tabs: Records · Tenants · EB</div>
+        <div class="setup-step"><span class="snum">4</span>Google Sheet 4 tabs: Records · Tenants · EB · RentHistory</div>
         <div class="setup-step"><span class="snum">5</span>கீழே உள்ளிட்டு சேமி</div>
       </div>
 
@@ -555,26 +607,15 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
         <div class="card-hd"><div class="card-hd-left">📋 Sheet அமைப்பு</div>
           <button class="btn sm pri" onclick="initHeaders()">🗂️ தலைப்புகள் உருவாக்கு</button>
         </div>
-        <div class="al info mb8"><span>ℹ️</span> உங்கள் Sheet-ல் <strong>Records, Tenants, EB</strong> என 3 tabs வேண்டும்.</div>
-        <div class="fs12 fw7 mb4">Records (Row 1):</div>
-        <code>House | Month | Rent | Water | EB | Other | PrevBal | Total | PayStatus | Received | Balance | Note | Timestamp</code>
-        <div class="fs12 fw7 mt8 mb4">Tenants (Row 1):</div>
-        <code>House | Name | Phone | DefaultRent | Water | Maint | Members | ProofType | ProofNumber | MoveInDate | DriveFileId</code>
-        <div class="fs12 fw7 mt8 mb4">EB (Row 1):</div>
-        <code>House | Month | StartReading | EndReading | Units | Rate | Amount | Timestamp</code>
-      </div>
-
-      <div class="card">
-        <div class="card-hd"><div class="card-hd-left">🏠 குடியிருப்பாளர் பட்டியல்</div></div>
-        <div class="tw">
-          <table>
-            <tr><th>#</th><th>வீடு</th><th>பெயர்</th></tr>
-            ${[{n:1,nm:'கலைசெல்வி'},{n:2,nm:'சங்கீதா'},{n:3,nm:'மகராசி'},{n:4,nm:'சுதா'},{n:5,nm:'பாரிதா'},
-               {n:6,nm:'அன்பு'},{n:7,nm:'சோழன்'},{n:8,nm:'அசீப்'},{n:9,nm:'Akila'},{n:10,nm:'கோகிலா'},
-               {n:11,nm:'பிரபு'},{n:12,nm:'சுவாமிநாதன்'},{n:13,nm:'லட்சுமிகாந்தன்'},{n:14,nm:'பாட்டி'},{n:15,nm:'தீபக்'}]
-              .map(h=>`<tr><td>${h.n}</td><td>வீடு ${h.n}</td><td>${h.nm}</td></tr>`).join('')}
-          </table>
-        </div>
+        <div class="al info mb8"><span>ℹ️</span> v3-ல் உங்கள் Sheet-ல் <strong>4 tabs</strong> வேண்டும்: Records · Tenants · EB · RentHistory</div>
+        <div class="fs12 fw7 mb4">Records (v3 — Backlog column புதியது):</div>
+        <code>House|Month|Rent|Water|EB|Other|Backlog|Total|PayStatus|Received|Balance|Note|Timestamp</code>
+        <div class="fs12 fw7 mt8 mb4">Tenants (v3 — EBRate, MoveOutDate, Status புதியவை):</div>
+        <code>House|Name|Phone|DefaultRent|Water|Maint|Members|EBRate|ProofType|ProofNumber|MoveInDate|MoveOutDate|Status|DriveFileId</code>
+        <div class="fs12 fw7 mt8 mb4">RentHistory (v3 புதிய tab):</div>
+        <code>House|EffectiveFrom|Rent|Water|Maint|EBRate|Note|Timestamp</code>
+        <div class="fs12 fw7 mt8 mb4">EB:</div>
+        <code>House|Month|StartReading|EndReading|Units|Rate|Amount|Timestamp</code>
       </div>
     </div>
 
@@ -605,11 +646,33 @@ code{background:var(--gray4);padding:2px 7px;border-radius:5px;font-size:12px;fo
 
 <div id="toast-wrap"></div>
 
+<!-- MONTHLY MODAL (v3) -->
+<div class="overlay" id="monModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd">
+      <div class="modal-title" id="monModalTitle">மாத பதிவு</div>
+      <button class="modal-x" onclick="document.getElementById('monModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="monModalBody"></div>
+  </div>
+</div>
+
+<!-- RENT REVISION MODAL (v3) -->
+<div class="overlay" id="rrModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-hd">
+      <div class="modal-title">📋 வாடகை திருத்தம்</div>
+      <button class="modal-x" onclick="document.getElementById('rrModal').classList.remove('open')">✕</button>
+    </div>
+    <div id="rrModalBody"></div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // CONFIG
 // ============================================================
-const CKRY = 'vdgPro2';
+const CKRY = 'vdgPro3';
 let C = { clientId:'', sheetId:'', driveFolderId:'', ebRate:6, token:'', userName:'', userEmail:'', userPhoto:'' };
 
 const HOUSES = [
@@ -673,9 +736,11 @@ function handleLogin() {
     toast('⚠️ டெமோ மோட் — அமைவு பக்கத்தில் Google API கீ சேர்க்கவும்','warn',5000);
     return;
   }
+  // Build clean redirect URI — no trailing slash
+  const cleanPath = (location.origin + location.pathname).replace(/\/$/,'');
   const p = new URLSearchParams({
     client_id: C.clientId,
-    redirect_uri: location.origin+location.pathname,
+    redirect_uri: cleanPath,
     response_type:'token',
     scope:'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
     include_granted_scopes:'true', state:'auth'
@@ -717,9 +782,10 @@ function handleLogout() {
 // NAVIGATION
 // ============================================================
 const PAGE_TITLES = {
-  dashboard:'டாஷ்போர்டு', record:'வாடகை பதிவு', bulk:'மொத்த பதிவு',
+  dashboard:'டாஷ்போர்டு', monthly:'மாத பதிவு', record:'தனி பதிவு', bulk:'மொத்த பதிவு',
   ledger:'பதிவேடு', receipt:'ரசீது', eb:'EB டிராக்கர்',
-  tenants:'குடியிருப்பாளர்', report:'அறிக்கை', whatsapp:'WhatsApp நினைவூட்டல்', setup:'அமைவு'
+  tenants:'குடியிருப்பாளர்', renthistory:'வாடகை திருத்த வரலாறு',
+  report:'அறிக்கை', whatsapp:'WhatsApp நினைவூட்டல்', setup:'அமைவு'
 };
 
 function nav(page) {
@@ -734,6 +800,7 @@ function nav(page) {
     case 'tenants': loadTenants(); break;
     case 'ledger': loadLedger(); break;
     case 'report': loadReport(); break;
+    case 'renthistory': loadRentHistory(); break;
   }
 }
 
@@ -755,7 +822,12 @@ function populateSels() {
     HOUSES.forEach(h=>{ const o=document.createElement('option'); o.value=h.n; o.textContent=`வீடு ${h.n} — ${h.nm}`; s.appendChild(o); });
     if(cur) s.value=cur;
   });
-  const ls=g('ledHouse'); if(ls){
+  ['ledHouse','rhHouse'].forEach(id => {
+    const s=g(id); if(!s) return;
+    s.innerHTML='<option value="">எல்லா வீடுகளும்</option>';
+    HOUSES.forEach(h=>{ const o=document.createElement('option'); o.value=h.n; o.textContent=`வீடு ${h.n} — ${h.nm}`; s.appendChild(o); });
+  });
+  const ls=g('ledHouse_skip'); if(ls){
     ls.innerHTML='<option value="">எல்லா வீடுகளும்</option>';
     HOUSES.forEach(h=>{ const o=document.createElement('option'); o.value=h.n; o.textContent=`வீடு ${h.n} — ${h.nm}`; ls.appendChild(o); });
   }
@@ -763,7 +835,7 @@ function populateSels() {
 
 function setDefMonths() {
   const ym=todayYM(), yr=thisYear();
-  ['recMonth','rcpMonth','bulkMonth','waMonth','ebMonth','ledFrom','ledTo'].forEach(id=>{ const e=g(id); if(e&&!e.value) e.value=ym; });
+  ['recMonth','rcpMonth','bulkMonth','waMonth','ebMonth','ledFrom','ledTo','monMonth'].forEach(id=>{ const e=g(id); if(e&&!e.value) e.value=ym; });
   ['ebYear','reportYear'].forEach(id=>{ const e=g(id); if(e&&!e.value) e.value=yr; });
 }
 
@@ -802,8 +874,8 @@ async function getRecords() {
   try {
     const d=await shGet('Records!A2:M');
     return (d.values||[]).filter(r=>r[0]).map(r=>({
-      house:r[0], month:r[1], rent:+r[2]||0, water:+r[3]||0, eb:+r[4]||0, other:+r[5]||0,
-      prevBal:+r[6]||0, total:+r[7]||0, payStatus:r[8]||'none',
+      house:+r[0], month:r[1], rent:+r[2]||0, water:+r[3]||0, eb:+r[4]||0, other:+r[5]||0,
+      backlog:+r[6]||0, total:+r[7]||0, payStatus:r[8]||'none',
       received:+r[9]||0, balance:+r[10]||0, note:r[11]||'', ts:r[12]||''
     }));
   } catch(e) { toast('⚠️ தரவு: '+e.message,'err'); return []; }
@@ -812,17 +884,18 @@ async function getRecords() {
 async function getTenants() {
   if(C.token==='DEMO') return HOUSES.map(h=>({
     house:h.n, name:h.nm, phone:'98765'+String(43200+h.n), defaultRent:5000+(h.n*50),
-    water:200, maint:0, members:2, proofType:'Aadhaar', proofNumber:'XXXX-'+h.n,
-    moveInDate:'2024-01-01', driveFileId:''
+    water:200, maint:0, members:2, ebRate:6, proofType:'Aadhaar', proofNumber:'XXXX-'+h.n,
+    moveInDate:'2024-01-01', moveOutDate:'', status:'Active', driveFileId:''
   }));
   try {
-    const d=await shGet('Tenants!A2:K');
+    const d=await shGet('Tenants!A2:N');
     const rows=(d.values||[]).filter(r=>r[0]);
-    if(rows.length===0) return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:200,maint:0,members:1,proofType:'Aadhaar',proofNumber:'',moveInDate:'',driveFileId:''}));
+    if(rows.length===0) return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:200,maint:0,members:1,ebRate:6,proofType:'Aadhaar',proofNumber:'',moveInDate:'',moveOutDate:'',status:'Active',driveFileId:''}));
     return rows.map(r=>({house:+r[0], name:r[1]||'', phone:r[2]||'', defaultRent:+r[3]||5000,
-      water:+r[4]||0, maint:+r[5]||0, members:+r[6]||1, proofType:r[7]||'Aadhaar',
-      proofNumber:r[8]||'', moveInDate:r[9]||'', driveFileId:r[10]||''}));
-  } catch(e) { toast('⚠️ குடியிருப்பு தரவு: '+e.message,'err'); return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:0,maint:0,members:1,proofType:'',proofNumber:'',moveInDate:'',driveFileId:''})); }
+      water:+r[4]||0, maint:+r[5]||0, members:+r[6]||1, ebRate:+r[7]||6,
+      proofType:r[8]||'Aadhaar', proofNumber:r[9]||'', moveInDate:r[10]||'',
+      moveOutDate:r[11]||'', status:r[12]||'Active', driveFileId:r[13]||''}));
+  } catch(e) { toast('⚠️ குடியிருப்பு தரவு: '+e.message,'err'); return HOUSES.map(h=>({house:h.n,name:h.nm,phone:'',defaultRent:5000,water:0,maint:0,members:1,ebRate:6,proofType:'',proofNumber:'',moveInDate:'',moveOutDate:'',status:'Active',driveFileId:''})); }
 }
 
 async function getEB() {
@@ -838,11 +911,13 @@ function demoRecords() {
   const res=[];
   const months=['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06'];
   HOUSES.forEach(h=>{
+    let prevBal=0;
     months.forEach((m,i)=>{
-      const rent=5000+(h.n*50), water=200, total=rent+water;
+      const rent=5000+(h.n*50), water=200, backlog=prevBal, total=rent+water+backlog;
       const st=sts[i%sts.length];
       const rec=st==='full'?total:st==='partial'?Math.floor(total*.6):0;
-      res.push({house:h.n,month:m,rent,water,eb:0,other:0,prevBal:0,total,payStatus:st,received:rec,balance:total-rec,note:'',ts:''});
+      const bal=total-rec; prevBal=bal;
+      res.push({house:h.n,month:m,rent,water,eb:0,other:0,backlog,total,payStatus:st,received:rec,balance:bal,note:'',ts:''});
     });
   });
   return res;
@@ -855,26 +930,30 @@ async function loadDash() {
   g('dashWrap').innerHTML='<div class="loading"><div class="spin"></div>டாஷ்போர்டு ஏற்றுகிறது...</div>';
   const [recs, tens] = await Promise.all([getRecords(), getTenants()]);
   recCache=recs; tenCache=tens;
+  const activeTens=tens.filter(t=>t.status==='Active');
+  const inactiveCount=tens.filter(t=>t.status!=='Active').length;
   const ym=todayYM();
   const mRecs=recs.filter(r=>r.month===ym);
   const billed=mRecs.reduce((s,r)=>s+r.total,0);
   const coll=mRecs.reduce((s,r)=>s+r.received,0);
   const bal=mRecs.reduce((s,r)=>s+r.balance,0);
+  const backlogTotal=mRecs.reduce((s,r)=>s+r.backlog,0);
   const paid=mRecs.filter(r=>r.payStatus==='full').length;
   const part=mRecs.filter(r=>r.payStatus==='partial').length;
-  const due=HOUSES.filter(h=>{ const r=mRecs.find(x=>+x.house===h.n); return !r||r.payStatus!=='full'; });
+  const due=activeTens.filter(h=>{ const r=mRecs.find(x=>x.house===h.house); return !r||r.payStatus!=='full'; });
   const eff=billed>0?Math.round(coll/billed*100):0;
   g('waBadge').textContent=due.length;
 
   g('dashWrap').innerHTML=`
-    <div class="al info mb12"><span>📅</span> நடப்பு மாதம்: <strong>${mlabel(ym)}</strong> &nbsp;·&nbsp; ${C.token==='DEMO'?'<span style="color:#d97706">⚠️ டெமோ மோட்</span>':'Google Sheets இணைக்கப்பட்டது ✅'}</div>
+    <div class="al info mb12"><span>📅</span> நடப்பு மாதம்: <strong>${mlabel(ym)}</strong> &nbsp;·&nbsp; ${C.token==='DEMO'?'<span style="color:#d97706">⚠️ டெமோ மோட்</span>':'Google Sheets இணைக்கப்பட்டது ✅'} &nbsp;·&nbsp; Active: <strong>${activeTens.length}</strong>${inactiveCount>0?` · Inactive: <strong>${inactiveCount}</strong>`:''}</div>
 
     <div class="mg">
       <div class="mc blue"><div class="ml">மொத்த வாடகை</div><div class="mv blue">${fmt(billed)}</div><div class="ms">${mlabel(ym)}</div></div>
       <div class="mc green"><div class="ml">வசூல்</div><div class="mv green">${fmt(coll)}</div><div class="ms">${paid} முழு · ${part} பகுதி</div></div>
       <div class="mc red"><div class="ml">நிலுவை</div><div class="mv red">${fmt(bal)}</div><div class="ms">${due.length} வீடுகள்</div></div>
+      ${backlogTotal>0?`<div class="mc amber"><div class="ml">மொத்த பாக்லாக்</div><div class="mv amber">${fmt(backlogTotal)}</div><div class="ms">முந்தைய நிலுவை</div></div>`:''}
       <div class="mc ${eff>=80?'green':eff>=50?'amber':'red'}"><div class="ml">வசூல் திறன்</div><div class="mv ${eff>=80?'green':eff>=50?'amber':'red'}">${eff}%</div><div class="ms">&nbsp;</div></div>
-      <div class="mc purple"><div class="ml">வீடுகள்</div><div class="mv purple">15</div><div class="ms">மொத்தம்</div></div>
+      <div class="mc purple"><div class="ml">Active வீடுகள்</div><div class="mv purple">${activeTens.length}</div><div class="ms">மொத்தம் 15</div></div>
     </div>
 
     <div class="card mb12">
@@ -888,21 +967,27 @@ async function loadDash() {
     </div>
 
     <div class="card">
-      <div class="card-hd"><div class="card-hd-left">🏠 வீடுகளின் நிலை</div></div>
+      <div class="card-hd"><div class="card-hd-left">🏠 வீடுகளின் நிலை</div>
+        <button class="btn sm blu" onclick="nav('monthly')">📅 மாத பதிவு</button>
+      </div>
       <div class="hgrid">
         ${HOUSES.map(h=>{
-          const r=mRecs.find(x=>+x.house===h.n);
+          const ten=tens.find(x=>x.house===h.n)||{status:'Active'};
+          const isActive=ten.status==='Active';
+          const r=mRecs.find(x=>x.house===h.n);
           const st=r?r.payStatus:'none';
-          const cls=st==='full'?'st-paid':st==='partial'?'st-partial':'st-unpaid';
+          const cls=!isActive?'st-inactive':st==='full'?'st-paid':st==='partial'?'st-partial':'st-unpaid';
           const chip=st==='full'?'paid':st==='partial'?'partial':'unpaid';
           const lbl=st==='full'?'✅ முழு':st==='partial'?'⚡ பகுதி':'❌ நிலுவை';
           const col=st==='full'?'tg':st==='partial'?'ta':'tr2';
-          return `<div class="hcard ${cls}" onclick="nav('record')">
+          const backlog=r?r.backlog:0;
+          return `<div class="hcard ${cls}" onclick="nav('monthly')">
             <div class="hn">வீடு ${h.n}</div>
-            <div class="hname">${h.nm}</div>
-            <div class="hamt ${col}">${fmt(r?r.total:5000)}</div>
+            <div class="hname">${ten.name||h.nm}</div>
+            ${isActive?`<div class="hamt ${col}">${fmt(r?r.total:(ten.defaultRent||5000))}</div>
             <div class="hst"><span class="chip sm ${chip}">${lbl}</span></div>
-            ${r&&r.balance>0?`<div class="fs11 tr2 mt4">நிலுவை: ${fmt(r.balance)}</div>`:''}
+            ${backlog>0?`<div class="backlog-dot">📌 ${fmt(backlog)}</div>`:''}`
+            :`<div class="hamt tgray">Inactive</div><div class="hst"><span class="chip sm inactive">🚫 காலி</span></div>`}
           </div>`;
         }).join('')}
       </div>
@@ -912,15 +997,16 @@ async function loadDash() {
     <div class="card">
       <div class="card-hd"><div class="card-hd-left">⚠️ நிலுவை வீடுகள்</div><span class="cbadge tr2">${due.length}</span></div>
       <div class="tw"><table>
-        <tr><th>வீடு</th><th>பெயர்</th><th>நிலை</th><th>நிலுவை</th><th></th></tr>
-        ${due.map(h=>{
-          const r=mRecs.find(x=>+x.house===h.n);
-          const st=r?r.payStatus:'none'; const t=tens.find(x=>+x.house===h.n)||{};
+        <tr><th>வீடு</th><th>பெயர்</th><th>பாக்லாக்</th><th>நிலை</th><th>நிலுவை</th><th></th></tr>
+        ${due.map(ten=>{
+          const r=mRecs.find(x=>x.house===ten.house);
+          const st=r?r.payStatus:'none';
           return `<tr>
-            <td>வீடு ${h.n}</td><td>${h.nm}</td>
+            <td>வீடு ${ten.house}</td><td>${ten.name}</td>
+            <td class="ta">${r&&r.backlog>0?fmt(r.backlog):'—'}</td>
             <td><span class="chip sm ${st==='partial'?'partial':'unpaid'}">${st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span></td>
             <td class="tr2 fw7">${r?fmt(r.balance):'—'}</td>
-            <td>${t.phone?`<a href="https://wa.me/91${t.phone}" target="_blank" style="color:#25d366;font-size:18px">💬</a>`:''}</td>
+            <td>${ten.phone?`<a href="https://wa.me/91${ten.phone}" target="_blank" style="color:#25d366;font-size:18px">💬</a>`:''}</td>
           </tr>`;
         }).join('')}
       </table></div>
@@ -1215,7 +1301,10 @@ async function loadEB() {
   if(!h||!y){ toast('வீடு மற்றும் ஆண்டு!','err'); return; }
   g('ebContent').innerHTML='<div class="loading"><div class="spin"></div></div>';
   g('ebForm').classList.remove('hidden'); sv('ebMonth',todayYM());
-  const ebRecs=await getEB();
+  const [ebRecs, tens]=await Promise.all([getEB(), tenCache.length?Promise.resolve(tenCache):getTenants()]);
+  tenCache=tens;
+  const ten=tens.find(x=>x.house===+h)||{};
+  sv('ebRate', ten.ebRate||C.ebRate||6); // auto-fill tenant's EB rate
   const filtered=ebRecs.filter(r=>+r.house===+h&&r.month?.startsWith(y));
   const hobj=HOUSES.find(x=>x.n===+h)||{};
   const months=Array.from({length:12},(_,i)=>y+'-'+String(i+1).padStart(2,'0'));
@@ -1223,7 +1312,7 @@ async function loadEB() {
 
   g('ebContent').innerHTML=`
     <div class="card">
-      <div class="card-hd"><div class="card-hd-left">💡 EB — ${hobj.nm} (${y})</div></div>
+      <div class="card-hd"><div class="card-hd-left">💡 EB — ${ten.name||hobj.nm} (${y}) · ₹${ten.ebRate||6}/யூனிட்</div></div>
       <div class="eb-grid">
         ${months.map(m=>{
           const rec=filtered.find(r=>r.month===m);
@@ -1285,24 +1374,29 @@ async function loadTenants() {
   tenCache=tens; recCache=recs;
   const ym=todayYM(); const mRecs=recs.filter(r=>r.month===ym);
 
+  const activeCount=tens.filter(t=>t.status==='Active').length;
+  const inactiveCount=tens.filter(t=>t.status!=='Active').length;
   g('tenantWrap').innerHTML=`
-    <div class="br end mb12">
+    <div class="flex-bet mb12">
+      <div class="flex"><span class="chip paid">Active: ${activeCount}</span>&nbsp;<span class="chip inactive">Inactive: ${inactiveCount}</span></div>
       <button class="btn blu" onclick="openTModal(null)">➕ குடியிருப்பாளர் சேர்</button>
     </div>
     ${HOUSES.map(h=>{
-      const t=tens.find(x=>+x.house===h.n)||{name:h.nm};
-      const hr=recs.filter(r=>+r.house===h.n);
+      const t=tens.find(x=>x.house===h.n)||{name:h.nm,status:'Active'};
+      const isActive=(t.status||'Active')==='Active';
+      const hr=recs.filter(r=>r.house===h.n);
       const tp=hr.reduce((s,r)=>s+r.received,0);
-      const mr=mRecs.find(r=>+r.house===h.n);
+      const mr=mRecs.find(r=>r.house===h.n);
       const st=mr?mr.payStatus:'—';
-      return `<div class="tcard" onclick="openTModal(${h.n})">
-        <div class="tavatar">${h.n}</div>
+      return `<div class="tcard ${!isActive?'inactive-card':''}" onclick="openTModal(${h.n})">
+        <div class="tavatar ${!isActive?'inactive-av':''}">${h.n}</div>
         <div class="tinfo">
-          <div class="tname">${t.name||h.nm}</div>
-          <div class="thouse">வீடு ${h.n} · ${t.proofType||'—'} · ${t.members||1} நபர்</div>
+          <div class="tname">${t.name||h.nm} ${!isActive?'<span class="chip sm inactive">🚫 Inactive</span>':''}</div>
+          <div class="thouse">வீடு ${h.n} · EB: ₹${t.ebRate||6}/யூனிட் · ${t.members||1} நபர்</div>
           <div class="tmeta">
             ${t.phone?`<span>📞 ${t.phone}</span>`:''}
-            ${t.moveInDate?`<span>📅 ${t.moveInDate}</span>`:''}
+            ${t.moveInDate?`<span>📅 குடி: ${t.moveInDate}</span>`:''}
+            ${t.moveOutDate?`<span>🚪 வெளி: ${t.moveOutDate}</span>`:''}
             <span>💰 ${fmt(t.defaultRent||5000)}/மா</span>
           </div>
         </div>
@@ -1509,25 +1603,26 @@ async function loadWA() {
   g('waWrap').innerHTML='<div class="loading"><div class="spin"></div></div>';
   const [recs,tens]=await Promise.all([getRecords(),getTenants()]);
   const mr=recs.filter(r=>r.month===m);
-  const due=HOUSES.filter(h=>{ const r=mr.find(x=>+x.house===h.n); return !r||r.payStatus!=='full'; });
+  const activeTens=tens.filter(t=>t.status==='Active');
+  const due=activeTens.filter(ten=>{ const r=mr.find(x=>x.house===ten.house); return !r||r.payStatus!=='full'; });
   g('waBadge').textContent=due.length;
-  if(!due.length){ g('waWrap').innerHTML='<div class="empty"><div class="ei">🎉</div><p>அனைத்து வீடுகளும் வாடகை செலுத்தியுள்ளனர்!</p></div>'; return; }
+  if(!due.length){ g('waWrap').innerHTML='<div class="empty"><div class="ei">🎉</div><p>அனைத்து Active வீடுகளும் வாடகை செலுத்தியுள்ளனர்!</p></div>'; return; }
   g('waWrap').innerHTML=`
     <div class="al warn mb12"><span>⚠️</span> ${mlabel(m)}-ல் <strong>${due.length}</strong> வீடுகளுக்கு நினைவூட்டல் அனுப்பவும்</div>
-    ${due.map(h=>{
-      const t=tens.find(x=>+x.house===h.n)||{name:h.nm};
-      const r=mr.find(x=>+x.house===h.n);
-      const bal=r?r.balance:(t.defaultRent||5000);
+    ${due.map(ten=>{
+      const r=mr.find(x=>x.house===ten.house);
+      const bal=r?r.balance:(ten.defaultRent||5000);
+      const backlog=r?r.backlog:0;
       const st=r?r.payStatus:'none';
-      const msg=encodeURIComponent(`வணக்கம் ${t.name||h.nm} அம்மா/ஐயா,\n\nவீடு ${h.n} — ${mlabel(m)} மாத வாடகை நிலுவை: ${fmt(bal)}\n\nதயவுசெய்து விரைவில் செலுத்தவும்.\n\nநன்றி 🙏`);
+      const msg=encodeURIComponent(`வணக்கம் ${ten.name} அம்மா/ஐயா,\n\nவீடு ${ten.house} — ${mlabel(m)} மாத வாடகை விவரம்:\n${backlog>0?`📌 பாக்லாக்: ${fmt(backlog)}\n`:''}💰 மொத்த நிலுவை: ${fmt(bal)}\n\nதயவுசெய்து விரைவில் செலுத்தவும்.\n\nநன்றி 🙏`);
       return `<div class="wcard">
         <div class="wcard-info">
-          <div class="wcard-name">வீடு ${h.n} — ${h.nm}</div>
-          <div class="wcard-amt">${fmt(bal)} நிலுவை</div>
-          <div style="margin-top:4px"><span class="chip sm ${st==='partial'?'partial':'unpaid'}">${st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span>${t.phone?` &nbsp;<span class="fs11" style="color:#94a3b8">📞 ${t.phone}</span>`:''}</div>
+          <div class="wcard-name">வீடு ${ten.house} — ${ten.name}</div>
+          <div class="wcard-amt">${fmt(bal)} நிலுவை${backlog>0?` (பாக்லாக்: ${fmt(backlog)})`:''}</div>
+          <div style="margin-top:4px"><span class="chip sm ${st==='partial'?'partial':'unpaid'}">${st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span>${ten.phone?` &nbsp;<span class="fs11" style="color:#94a3b8">📞 ${ten.phone}</span>`:''}</div>
         </div>
         ${t.phone
-          ?`<button class="wa-btn" onclick="window.open('https://wa.me/91${t.phone}?text=${msg}','_blank')">
+          ?`<button class="wa-btn" onclick="window.open('https://wa.me/91${ten.phone}?text=${msg}','_blank')">
               <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
               அனுப்பு
             </button>`
@@ -1545,15 +1640,354 @@ async function initHeaders() {
   if(C.token==='DEMO'){ toast('டெமோ மோட்டில் இயங்காது','warn'); return; }
   if(!C.sheetId){ toast('Sheet ID இல்லை!','err'); return; }
   try {
-    await shUpdate('Records!A1:M1',[['House','Month','Rent','Water','EB','Other','PrevBal','Total','PayStatus','Received','Balance','Note','Timestamp']]);
-    await shUpdate('Tenants!A1:K1',[['House','Name','Phone','DefaultRent','Water','Maint','Members','ProofType','ProofNumber','MoveInDate','DriveFileId']]);
+    await shUpdate('Records!A1:M1',[['House','Month','Rent','Water','EB','Other','Backlog','Total','PayStatus','Received','Balance','Note','Timestamp']]);
+    await shUpdate('Tenants!A1:N1',[['House','Name','Phone','DefaultRent','Water','Maint','Members','EBRate','ProofType','ProofNumber','MoveInDate','MoveOutDate','Status','DriveFileId']]);
     await shUpdate('EB!A1:H1',[['House','Month','StartReading','EndReading','Units','Rate','Amount','Timestamp']]);
+    await shUpdate('RentHistory!A1:H1',[['House','EffectiveFrom','Rent','Water','Maint','EBRate','Note','Timestamp']]);
     for(let i=0;i<HOUSES.length;i++){
       const h=HOUSES[i];
-      await shUpdate(`Tenants!A${i+2}:K${i+2}`,[[h.n,h.nm,'',5000,200,0,1,'Aadhaar','','','']]);
+      await shUpdate(`Tenants!A${i+2}:N${i+2}`,[[h.n,h.nm,'',5000,200,0,1,6,'Aadhaar','','','','Active','']]);
     }
-    toast('✅ Sheet தலைப்புகள் + குடியிருப்பாளர் தரவு தயார்!','ok',5000);
+    toast('✅ v3 Sheet தலைப்புகள் + குடியிருப்பாளர் தரவு தயார்!','ok',5000);
   } catch(e){ toast('❌ '+e.message,'err'); }
+}
+
+// ============================================================
+// v3: RENT HISTORY + EFFECTIVE RENT
+// ============================================================
+let rhCache = [];
+let payStatusMon = '';
+
+async function getRentHistory() {
+  if(C.token==='DEMO') return [];
+  try {
+    const d=await shGet('RentHistory!A2:H');
+    return (d.values||[]).filter(r=>r[0]).map(r=>({
+      house:+r[0], effectiveFrom:r[1], rent:+r[2]||0, water:+r[3]||0,
+      maint:+r[4]||0, ebRate:+r[5]||0, note:r[6]||'', ts:r[7]||''
+    }));
+  } catch(e) { return []; }
+}
+
+function getEffectiveRent(rentHistory, tenants, houseNum, month) {
+  const t=tenants.find(x=>x.house===houseNum)||{};
+  const applicable=rentHistory
+    .filter(r=>r.house===houseNum && r.effectiveFrom<=month)
+    .sort((a,b)=>b.effectiveFrom.localeCompare(a.effectiveFrom));
+  if(applicable.length>0) {
+    const r=applicable[0];
+    return {rent:r.rent, water:r.water, maint:r.maint, ebRate:r.ebRate||t.ebRate||6};
+  }
+  return {rent:+t.defaultRent||5000, water:+t.water||0, maint:+t.maint||0, ebRate:+t.ebRate||6};
+}
+
+function prevYM(ym) {
+  const d=new Date(ym+'-01'); d.setMonth(d.getMonth()-1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+}
+
+// ============================================================
+// v3: MONTHLY PAGE
+// ============================================================
+async function loadMonthly() {
+  const m=gv('monMonth'); if(!m){toast('மாதம் தேர்ந்தெடுக்கவும்!','err');return;}
+  g('monWrap').innerHTML='<div class="loading"><div class="spin"></div>ஏற்றுகிறது...</div>';
+  const [recs,tens,rh]=await Promise.all([getRecords(),getTenants(),getRentHistory()]);
+  tenCache=tens; rhCache=rh;
+  const activeTens=tens.filter(t=>t.status==='Active');
+  const mRecs=recs.filter(r=>r.month===m);
+  g('monWrap').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><div class="card-hd-left">📅 ${mlabel(m)} — ${activeTens.length} Active வீடுகள்</div></div>
+      <div class="tw"><table>
+        <tr><th>வீடு</th><th>பெயர்</th><th>வாடகை</th><th>பாக்லாக்</th><th>EB</th><th>மொத்தம்</th><th>நிலை</th><th>நடவடிக்கை</th></tr>
+        ${activeTens.map(ten=>{
+          const r=mRecs.find(x=>x.house===ten.house);
+          const eff=getEffectiveRent(rh,tens,ten.house,m);
+          const pm=prevYM(m);
+          const prevRec=recs.find(x=>x.house===ten.house&&x.month===pm);
+          const backlog=r?r.backlog:(prevRec?prevRec.balance:0);
+          const total=r?r.total:(eff.rent+eff.water+eff.maint+backlog);
+          const st=r?r.payStatus:'none';
+          return `<tr>
+            <td class="fw7">வீடு ${ten.house}</td><td>${ten.name}</td>
+            <td class="tr">${fmt(eff.rent)}</td>
+            <td class="tr ${backlog>0?'ta':''}">${backlog>0?fmt(backlog):'—'}</td>
+            <td class="tr">${r&&r.eb>0?fmt(r.eb):'—'}</td>
+            <td class="tr fw7">${fmt(total)}</td>
+            <td>${r?`<span class="chip sm ${st==='full'?'paid':st==='partial'?'partial':'unpaid'}">${st==='full'?'✅ முழு':st==='partial'?'⚡ பகுதி':'❌ இல்லை'}</span>`:'<span class="chip sm pending">📝 பதிவு இல்லை</span>'}</td>
+            <td><button class="btn xs ${r?'':'blu'}" onclick="openMonModal(${ten.house},'${m}')">${r?'✏️ திருத்து':'➕ சேர்'}</button></td>
+          </tr>`;
+        }).join('')}
+      </table></div>
+    </div>`;
+}
+
+async function autoGenerate() {
+  const m=gv('monMonth'); if(!m){toast('மாதம்!','err');return;}
+  if(!confirm(`${mlabel(m)} மாதத்திற்கு அனைத்து Active வீடுகளுக்கும் பதிவு உருவாக்கவா?`)) return;
+  const [recs,tens,rh]=await Promise.all([getRecords(),getTenants(),getRentHistory()]);
+  tenCache=tens; rhCache=rh;
+  const activeTens=tens.filter(t=>t.status==='Active');
+  const existing=recs.filter(r=>r.month===m).map(r=>r.house);
+  const toCreate=activeTens.filter(t=>!existing.includes(t.house));
+  if(!toCreate.length){toast('✅ இந்த மாதம் அனைத்து வீடுகளுக்கும் ஏற்கனவே பதிவு உள்ளது!','ok');return;}
+  const rows=toCreate.map(ten=>{
+    const eff=getEffectiveRent(rh,tens,ten.house,m);
+    const pm=prevYM(m);
+    const prevRec=recs.find(x=>x.house===ten.house&&x.month===pm);
+    const backlog=prevRec?prevRec.balance:0;
+    const total=eff.rent+eff.water+eff.maint+backlog;
+    return [ten.house,m,eff.rent,eff.water,0,eff.maint,backlog,total,'none',0,total,'Auto generated',new Date().toISOString()];
+  });
+  if(C.token==='DEMO'){toast(`✅ (டெமோ) ${rows.length} வீடுகளுக்கு பதிவு உருவாக்கப்பட்டது!`,'ok');loadMonthly();return;}
+  try{
+    await shAppend('Records!A:M',rows);
+    recCache=[]; toast(`✅ ${rows.length} வீடுகளுக்கு பதிவு உருவாக்கப்பட்டது!`,'ok'); loadMonthly();
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function openMonModal(houseNum, month) {
+  const tens=tenCache.length?tenCache:await getTenants();
+  const recs=recCache.length?recCache:await getRecords();
+  const rh=rhCache.length?rhCache:await getRentHistory();
+  tenCache=tens; recCache=recs; rhCache=rh;
+  const ten=tens.find(x=>x.house===houseNum)||{};
+  const eff=getEffectiveRent(rh,tens,houseNum,month);
+  const pm=prevYM(month);
+  const prevRec=recs.find(x=>x.house===houseNum&&x.month===pm);
+  const backlog=prevRec?prevRec.balance:0;
+  const existing=recs.find(x=>x.house===houseNum&&x.month===month);
+  const ebRecs=await getEB();
+  const ebRec=ebRecs.find(x=>x.house===houseNum&&x.month===month);
+  const ebAmt=ebRec?ebRec.amount:(existing?existing.eb:0);
+  payStatusMon=existing?existing.payStatus:'';
+  g('monModalTitle').textContent=`வீடு ${houseNum} — ${ten.name||''} · ${mlabel(month)}`;
+  g('monModalBody').innerHTML=`
+    ${backlog>0?`<div class="backlog-banner">📌 <span>முந்தைய மாத நிலுவை (பாக்லாக்): <strong>${fmt(backlog)}</strong></span></div>`:''}
+    <div class="r3">
+      <div class="fg"><label>வாடகை ₹</label><input type="number" id="mm_rent" value="${existing?existing.rent:eff.rent}" oninput="calcMon()"></div>
+      <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="mm_water" value="${existing?existing.water:eff.water}" oninput="calcMon()"></div>
+      <div class="fg"><label>பராமரிப்பு ₹</label><input type="number" id="mm_maint" value="${existing?existing.other:eff.maint}" oninput="calcMon()"></div>
+    </div>
+    <div class="r3">
+      <div class="fg"><label>EB தொகை ₹ <span class="fs10 tgray">(EB tab-ல் இருந்து)</span></label><input type="number" id="mm_eb" value="${ebAmt}" oninput="calcMon()"></div>
+      <div class="fg"><label>பாக்லாக் ₹ <span class="fs10 tgray">(தானாக)</span></label><input type="number" id="mm_backlog" value="${backlog}" readonly></div>
+      <div class="fg"><label>மொத்தம் ₹</label><input type="number" id="mm_total" readonly></div>
+    </div>
+    <hr class="sep">
+    <div class="fw7 mb8">✅ கட்டண நிலை</div>
+    <div class="pay-chips">
+      <button class="pay-chip ${payStatusMon==='full'?'sf':''}" id="mpc-full" onclick="setMonPay('full')">✅ முழுமையாக</button>
+      <button class="pay-chip ${payStatusMon==='partial'?'sp':''}" id="mpc-partial" onclick="setMonPay('partial')">⚡ பகுதியாக</button>
+      <button class="pay-chip ${payStatusMon==='none'?'sn':''}" id="mpc-none" onclick="setMonPay('none')">❌ இல்லை</button>
+    </div>
+    <div id="mm_recvDiv" class="${payStatusMon==='partial'?'mt8':'hidden mt8'}">
+      <div class="fg"><label>பெற்ற தொகை ₹</label><input type="number" id="mm_recv" value="${existing?existing.received:0}" oninput="calcMonBal()"></div>
+    </div>
+    <div class="r2 mt8">
+      <div class="fg"><label>செலுத்திய தொகை ₹</label><input type="number" id="mm_paid" readonly></div>
+      <div class="fg"><label>இருப்பு ₹</label><input type="number" id="mm_bal" readonly></div>
+    </div>
+    <div class="fg"><label>குறிப்பு</label><textarea id="mm_note" placeholder="குறிப்பு...">${existing?existing.note:''}</textarea></div>
+    <div class="br end">
+      <button class="btn" onclick="document.getElementById('monModal').classList.remove('open')">ரத்து</button>
+      <button class="btn grn" onclick="saveMonEntry(${houseNum},'${month}')">💾 சேமி</button>
+    </div>`;
+  g('monModal').classList.add('open');
+  calcMon();
+  if(payStatusMon) setMonPay(payStatusMon);
+}
+
+function calcMon() {
+  const r=+gv('mm_rent')||0,w=+gv('mm_water')||0,e=+gv('mm_eb')||0,o=+gv('mm_maint')||0,b=+gv('mm_backlog')||0;
+  sv('mm_total',r+w+e+o+b); calcMonBal();
+}
+function setMonPay(st) {
+  payStatusMon=st;
+  ['full','partial','none'].forEach(s=>{const c=g('mpc-'+s);if(c)c.className='pay-chip'+(s===st?' s'+s[0]:'');});
+  const tot=+gv('mm_total')||0; const rd=g('mm_recvDiv');
+  if(st==='full'){sv('mm_recv',tot);if(rd)rd.classList.add('hidden');}
+  else if(st==='partial'){if(rd)rd.classList.remove('hidden');}
+  else{sv('mm_recv',0);if(rd)rd.classList.add('hidden');}
+  calcMonBal();
+}
+function calcMonBal() {
+  const tot=+gv('mm_total')||0;
+  const rec=payStatusMon==='full'?tot:(payStatusMon==='none'?0:+gv('mm_recv')||0);
+  sv('mm_paid',rec); sv('mm_bal',tot-rec);
+}
+
+async function saveMonEntry(houseNum, month) {
+  if(!payStatusMon){toast('கட்டண நிலை தேர்ந்தெடுக்கவும்!','err');return;}
+  const r=+gv('mm_rent')||0,w=+gv('mm_water')||0,e=+gv('mm_eb')||0,o=+gv('mm_maint')||0,b=+gv('mm_backlog')||0;
+  const tot=r+w+e+o+b;
+  const rec=payStatusMon==='full'?tot:(payStatusMon==='none'?0:+gv('mm_recv')||0);
+  const row=[houseNum,month,r,w,e,o,b,tot,payStatusMon,rec,tot-rec,gv('mm_note'),new Date().toISOString()];
+  if(C.token==='DEMO'){toast('✅ (டெமோ) சேமிக்கப்பட்டது!','ok');document.getElementById('monModal').classList.remove('open');return;}
+  try {
+    const fullData=await shGet('Records!A2:B');
+    const idx=(fullData.values||[]).findIndex(x=>+x[0]===houseNum&&x[1]===month);
+    if(idx>=0) await shUpdate(`Records!A${idx+2}:M${idx+2}`,[row]);
+    else await shAppend('Records!A:M',[row]);
+    recCache=[]; toast('✅ சேமிக்கப்பட்டது!','ok');
+    document.getElementById('monModal').classList.remove('open'); loadMonthly();
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ============================================================
+// v3: RENT HISTORY PAGE
+// ============================================================
+async function loadRentHistory() {
+  const h=gv('rhHouse');
+  g('rhWrap').innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const [rh,tens]=await Promise.all([getRentHistory(),tenCache.length?Promise.resolve(tenCache):getTenants()]);
+  rhCache=rh; tenCache=tens;
+  let filtered=h?rh.filter(r=>r.house===+h):rh;
+  filtered.sort((a,b)=>b.effectiveFrom.localeCompare(a.effectiveFrom)||a.house-b.house);
+  if(!filtered.length){
+    g('rhWrap').innerHTML='<div class="empty"><div class="ei">📋</div><p>வாடகை திருத்த வரலாறு இல்லை.<br>➕ பொத்தானை அழுத்தி சேர்க்கவும்.</p></div>';
+    return;
+  }
+  g('rhWrap').innerHTML=`
+    <div class="card">
+      <div class="tw"><table>
+        <tr><th>வீடு</th><th>பயன்பாடு தொடங்கும் மாதம்</th><th>வாடகை</th><th>தண்ணீர்</th><th>பராமரிப்பு</th><th>EB விலை</th><th>குறிப்பு</th></tr>
+        ${filtered.map(r=>{
+          const ten=tens.find(x=>x.house===r.house)||{};
+          const isCurrent=!filtered.find(x=>x.house===r.house&&x.effectiveFrom>r.effectiveFrom);
+          return `<tr ${isCurrent?'style="background:#f0fdf4"':''}>
+            <td>${hlabel(r.house)}<br><span class="fs11 tgray">${ten.name||''}</span></td>
+            <td class="fw7">${mlabel(r.effectiveFrom)} ${isCurrent?'<span class="chip sm paid">நடப்பு</span>':''}</td>
+            <td class="tr fw7">${fmt(r.rent)}</td>
+            <td class="tr">${fmt(r.water)}</td>
+            <td class="tr">${fmt(r.maint)}</td>
+            <td class="tr">₹${r.ebRate}/யூனிட்</td>
+            <td>${r.note||'—'}</td>
+          </tr>`;
+        }).join('')}
+      </table></div>
+    </div>`;
+}
+
+function openRentRevModal() {
+  const h=gv('rhHouse');
+  let prefill={rent:'',water:'',maint:'',ebRate:6};
+  if(h){const t=tenCache.find(x=>x.house===+h)||{};prefill={rent:t.defaultRent||5000,water:t.water||200,maint:t.maint||0,ebRate:t.ebRate||6};}
+  g('rrModalBody').innerHTML=`
+    <div class="al info mb8"><span>ℹ️</span> இந்த திருத்தம் புதிய மாத பதிவுகளில் மட்டும் பயன்படும். பழைய பதிவுகள் மாறாது.</div>
+    <div class="r2">
+      <div class="fg"><label>வீடு</label><select id="rr_house">
+        ${HOUSES.map(hh=>`<option value="${hh.n}" ${h&&+h===hh.n?'selected':''}>வீடு ${hh.n} — ${hh.nm}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>பயன்பாடு தொடங்கும் மாதம்</label><input type="month" id="rr_from" value="${todayYM()}"></div>
+    </div>
+    <div class="r4">
+      <div class="fg"><label>வாடகை ₹</label><input type="number" id="rr_rent" value="${prefill.rent}" placeholder="5000"></div>
+      <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="rr_water" value="${prefill.water}" placeholder="200"></div>
+      <div class="fg"><label>பராமரிப்பு ₹</label><input type="number" id="rr_maint" value="${prefill.maint}" placeholder="0"></div>
+      <div class="fg"><label>EB ₹/யூனிட்</label><input type="number" id="rr_ebrate" value="${prefill.ebRate}" placeholder="6" step="0.5"></div>
+    </div>
+    <div class="fg"><label>திருத்தக் காரண குறிப்பு</label><input id="rr_note" placeholder="எ.கா: வாடகை உயர்வு 2025 ஜனவரி"></div>
+    <div class="br end">
+      <button class="btn" onclick="document.getElementById('rrModal').classList.remove('open')">ரத்து</button>
+      <button class="btn grn" onclick="saveRentRev()">💾 பதிவு செய்</button>
+    </div>`;
+  document.getElementById('rrModal').classList.add('open');
+}
+
+async function saveRentRev() {
+  const h=gv('rr_house'),f=gv('rr_from');
+  if(!h||!f){toast('வீடு மற்றும் மாதம் கட்டாயம்!','err');return;}
+  const r=+gv('rr_rent')||0;
+  if(!r){toast('வாடகை தொகை உள்ளிடவும்!','err');return;}
+  const w=+gv('rr_water')||0,m=+gv('rr_maint')||0,e=+gv('rr_ebrate')||6;
+  const row=[h,f,r,w,m,e,gv('rr_note'),new Date().toISOString()];
+  if(C.token==='DEMO'){toast('✅ (டெமோ) வாடகை திருத்தம் பதிவு செய்யப்பட்டது!','ok');document.getElementById('rrModal').classList.remove('open');return;}
+  try {
+    await shAppend('RentHistory!A:H',[row]);
+    rhCache=[]; toast('✅ வாடகை திருத்தம் பதிவு செய்யப்பட்டது!','ok');
+    document.getElementById('rrModal').classList.remove('open'); loadRentHistory();
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ============================================================
+// v3: PATCH openTModal — Active/Inactive toggle + EBRate + MoveOut
+// ============================================================
+function openTModal(houseNum) {
+  const h=houseNum?HOUSES.find(x=>x.n===houseNum):null;
+  const t=houseNum?tenCache.find(x=>x.house===houseNum)||{}:{};
+  g('tModalTitle').textContent=houseNum?`வீடு ${houseNum} — ${t.name||h?.nm||''}`:'புதிய குடியிருப்பாளர்';
+  const isActive=(t.status||'Active')==='Active';
+  g('tModalBody').innerHTML=`
+    <div class="toggle-wrap">
+      <label class="toggle"><input type="checkbox" id="tf_status" ${isActive?'checked':''} onchange="toggleStatus()"><span class="toggle-slider"></span></label>
+      <span class="toggle-label" id="tf_slabel">${isActive?'✅ Active — வாடகை வசூல் நடக்கிறது':'🚫 Inactive — வீடு காலியாக உள்ளது'}</span>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>வீடு</label><select id="tf_house">
+        ${HOUSES.map(hh=>`<option value="${hh.n}" ${(+t.house===hh.n||+houseNum===hh.n)?'selected':''}>${hh.n} — ${hh.nm}</option>`).join('')}
+      </select></div>
+      <div class="fg"><label>பெயர்</label><input id="tf_name" value="${t.name||h?.nm||''}" placeholder="பெயர்"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>கைபேசி</label><input id="tf_phone" value="${t.phone||''}" placeholder="9876543210"></div>
+      <div class="fg"><label>உறுப்பினர்கள்</label><input type="number" id="tf_members" value="${t.members||1}" min="1"></div>
+    </div>
+    <div class="r4">
+      <div class="fg"><label>வாடகை ₹</label><input type="number" id="tf_rent" value="${t.defaultRent||5000}"></div>
+      <div class="fg"><label>தண்ணீர் ₹</label><input type="number" id="tf_water" value="${t.water||200}"></div>
+      <div class="fg"><label>பராமரிப்பு ₹</label><input type="number" id="tf_maint" value="${t.maint||0}"></div>
+      <div class="fg"><label>EB ₹/யூனிட்</label><input type="number" id="tf_ebrate" value="${t.ebRate||6}" step="0.5"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>குடி வந்த தேதி</label><input type="date" id="tf_movein" value="${t.moveInDate||''}"></div>
+      <div class="fg"><label>குடி வெளியேறிய தேதி</label><input type="date" id="tf_moveout" value="${t.moveOutDate||''}" ${isActive?'disabled':''}></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>சான்று வகை</label><select id="tf_ptype">${['Aadhaar','Passport','Voter ID','Driving Licence','Other'].map(p=>`<option ${t.proofType===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div class="fg"><label>சான்று எண்</label><input id="tf_pnum" value="${t.proofNumber||''}" placeholder="XXXX-XXXX-XXXX"></div>
+    </div>
+    <div class="fg"><label>சான்று படம் (Drive)</label><input type="file" id="tf_file" accept="image/*,.pdf">
+      ${t.driveFileId?`<div class="hint">✅ <a href="https://drive.google.com/file/d/${t.driveFileId}/view" target="_blank">திறக்க</a></div>`:'<div class="hint">JPEG / PNG / PDF</div>'}
+    </div>
+    <div class="al warn mb8"><span>⚠️</span> வாடகை மாற்றங்களை பதிவு செய்ய → <strong>வாடகை திருத்த வரலாறு</strong> பயன்படுத்தவும்.</div>
+    <div class="br end">
+      <button class="btn" onclick="closeTModal()">ரத்து</button>
+      <button class="btn grn" onclick="saveTenant()">💾 சேமி</button>
+    </div>
+    ${houseNum?`<hr class="sep"><div class="fs12 fw7 mb8">📊 வரலாறு</div><div id="tHistory"><div class="loading" style="padding:16px"><div class="spin"></div></div></div>`:''}`;
+  g('tModal').classList.add('open');
+  if(houseNum) loadTenantHistory(houseNum);
+}
+
+function toggleStatus() {
+  const isA=g('tf_status').checked;
+  g('tf_slabel').textContent=isA?'✅ Active — வாடகை வசூல் நடக்கிறது':'🚫 Inactive — வீடு காலியாக உள்ளது';
+  const mo=g('tf_moveout'); if(mo){mo.disabled=isA; if(isA)mo.value='';}
+}
+
+async function saveTenant() {
+  const h=gv('tf_house'), nm=gv('tf_name');
+  if(!h||!nm){toast('வீடு மற்றும் பெயர்!','err');return;}
+  const isActive=g('tf_status')?g('tf_status').checked:true;
+  let dfid=''; const fi=g('tf_file');
+  if(fi?.files.length&&C.token!=='DEMO'&&C.driveFolderId){
+    try{dfid=await uploadToDrive(fi.files[0],+h);toast('📁 Drive-ல் பதிவேற்றப்பட்டது!','ok');}
+    catch(e){toast('⚠️ Drive: '+e.message,'warn');}
+  }
+  const row=[h,nm,gv('tf_phone'),gv('tf_rent')||5000,gv('tf_water')||0,gv('tf_maint')||0,
+    gv('tf_members')||1,gv('tf_ebrate')||6,gv('tf_ptype'),gv('tf_pnum'),
+    gv('tf_movein'),gv('tf_moveout'),isActive?'Active':'Inactive',dfid];
+  if(C.token==='DEMO'){toast('✅ (டெமோ) சேமிக்கப்பட்டது!','ok');closeTModal();return;}
+  try{
+    const ex=await shGet('Tenants!A:A'); const rows=ex.values||[];
+    const idx=rows.findIndex(r=>+r[0]===+h);
+    if(idx>0) await shUpdate(`Tenants!A${idx+1}:N${idx+1}`,[row]);
+    else await shAppend('Tenants!A:N',[row]);
+    tenCache=[]; toast('✅ குடியிருப்பாளர் சேமிக்கப்பட்டார்!','ok');
+    closeTModal(); loadTenants();
+  } catch(e){toast('❌ '+e.message,'err');}
 }
 
 // ============================================================
